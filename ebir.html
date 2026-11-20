@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<script>(function(){ document.documentElement.setAttribute('data-theme', localStorage.getItem('si_theme')||'light'); const token = sessionStorage.getItem('schiller_token'); if (!token) window.location.href = 'login.html'; })();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SchillerIndia - BIR LIST</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#f4f7fa;--surface:#ffffff;--surface2:#eaf1f6;--border:#d0e0ec;
+  --accent:#0077cc;--accent2:#007a8a;--green:#059669;--amber:#d97706;
+  --red:#cc0000;--text:#1a2a3a;--muted:#7a9ab0;--soft:#4a6a8a;--card:#ffffff;
+}
+[data-theme="dark"]{
+  --bg:#0f1621;--surface:#1a2333;--surface2:#1e293b;--border:#2a3a52;
+  --accent:#3b9eff;--accent2:#22d3ee;--green:#10b981;--amber:#f59e0b;
+  --red:#f87171;--text:#e2eaf4;--muted:#4a6a8a;--soft:#7a9ab0;--card:#1a2333;
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* ?"??"? SIDEBAR ?"??"? */
+.sidebar{width:225px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;box-shadow:2px 0 14px rgba(0,60,120,0.07);}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.sidebar-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);background:var(--surface);}
+.logo-wrap{display:flex;align-items:center;gap:9px;}
+.logo-icon{width:34px;height:34px;background:rgba(255,255,255,0.14);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;border:1.5px solid rgba(255,255,255,0.22);}
+.logo-text{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;line-height:1.2;}
+.logo-text span{display:block;font-size:10px;color:rgba(255,255,255,0.55);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;}
+.emp-badge{margin:8px 12px 0;padding:3px 10px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;display:inline-block;background:rgba(4,120,87,0.12);color:#059669;border:1px solid rgba(4,120,87,0.2);}
+.sidebar-nav{flex:1;padding:8px 6px;}
+.nav-sec{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;padding:9px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;color:var(--soft);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.18s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--accent3);color:var(--accent);font-weight:700;border-left:3px solid var(--accent);padding-left:8px;}
+.nav-item .ico{font-size:12px;width:17px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:9px;}
+.sidebar-footer{padding:11px 12px;border-top:1px solid var(--border);background:var(--surface3);}
+.user-row{display:flex;align-items:center;gap:8px;}
+.user-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0ea5e9);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;}
+.user-nm{font-size:12px;font-weight:600;color:var(--text);}
+.user-rl{font-size:10px;color:var(--muted);}
+.logout-btn{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:10.5px;font-weight:600;transition:all 0.2s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* ?"??"? MAIN ?"??"? */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{padding:13px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:10.5px;margin-bottom:2px;}
+.breadcrumb a{color:var(--muted);text-decoration:none;}
+.breadcrumb a:hover{color:var(--accent);}
+.breadcrumb .sep{color:var(--border2);}
+.page-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.content{flex:1;padding:20px 24px;overflow-y:auto;}
+
+/* ?"??"? STATS ?"??"? */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);transition:all 0.2s;position:relative;overflow:hidden;display:grid;grid-template-columns:24px 1fr;column-gap:8px;align-items:start;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:11px 11px 0 0;}
+.sc-blue::before{background:linear-gradient(90deg,#0068b5,#0ea5e9);}
+.sc-amber::before{background:linear-gradient(90deg,#b45309,#d97706);}
+.sc-red::before{background:linear-gradient(90deg,#b91c1c,#dc2626);}
+.sc-green::before{background:linear-gradient(90deg,#047857,#059669);}
+.sc-purple::before{background:linear-gradient(90deg,#5b21b6,#7c3aed);}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.stat-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;grid-column:1;grid-row:1;}
+.si-blue{background:rgba(0,104,181,0.1);}
+.si-amber{background:rgba(180,83,9,0.1);}
+.si-red{background:rgba(185,28,28,0.1);}
+.si-green{background:rgba(4,120,87,0.1);}
+.si-purple{background:rgba(91,33,182,0.1);}
+.stat-label{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;grid-column:2;grid-row:1;align-self:center;}
+.stat-value{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);line-height:1;grid-column:1/span 2;grid-row:2;margin-top:6px;}
+.stat-sub{font-size:9px;color:var(--muted);margin-top:2px;grid-column:1/span 2;grid-row:3;}
+
+/* ?"??"? FILTER STRIP ?"??"? */
+.filter-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow);}
+.filter-field{display:flex;flex-direction:column;gap:5px;}
+.filter-field label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;}
+.f-inp{padding:8px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.2s;min-width:150px;}
+.f-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,104,181,0.07);}
+.f-select{padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--soft);background:var(--surface);outline:none;cursor:pointer;}
+.f-select:focus{border-color:var(--accent);}
+.filter-actions{display:flex;gap:8px;margin-left:auto;align-items:flex-end;}
+
+/* ?"??"? TABLE CARD ?"??"? */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.table-top{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--surface3);}
+.table-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.count-chip{background:var(--accent3);color:var(--accent);font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:10px;border:1px solid rgba(0,104,181,0.15);}
+.toolbar-r{display:flex;align-items:center;gap:9px;}
+.show-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);}
+.srch-wrap{position:relative;}
+.srch-wrap input{padding:7px 12px 7px 30px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;width:220px;transition:border-color 0.2s,box-shadow 0.2s;}
+.srch-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,104,181,0.07);}
+.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);}
+
+/* ?"??"? TABLE ?"??"? */
+.table-wrap{overflow-x:auto;}
+table.bir-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:1400px;}
+table.bir-table thead th{padding:9px 10px;font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;text-align:left;border-bottom:2px solid var(--border);background:var(--surface3);white-space:nowrap;cursor:pointer;user-select:none;transition:color 0.2s;}
+table.bir-table thead th:hover{color:var(--accent);}
+table.bir-table thead th.sorted{color:var(--accent);}
+table.bir-table thead th .si{font-size:8px;margin-left:2px;opacity:0.45;}
+table.bir-table thead th.sorted .si{opacity:1;}
+table.bir-table thead th.no-sort{cursor:default;}
+table.bir-table thead th.no-sort:hover{color:var(--muted);}
+table.bir-table tbody td{padding:9px 10px;border-bottom:1px solid rgba(0,60,120,0.05);vertical-align:middle;}
+table.bir-table tbody tr{transition:background 0.13s;cursor:pointer;}
+table.bir-table tbody tr:hover td{background:rgba(0,104,181,0.03);}
+table.bir-table tbody tr:last-child td{border-bottom:none;}
+.table-foot{padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--muted);flex-wrap:wrap;gap:8px;background:var(--surface3);}
+.pager-row{display:flex;align-items:center;gap:3px;}
+.pager{min-width:28px;height:28px;padding:0 7px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.18s;font-family:'Plus Jakarta Sans',sans-serif;}
+.pager:hover{border-color:var(--accent);color:var(--accent);}
+.pager.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pager:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* ?"??"? PILLS & BADGES ?"??"? */
+.s-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.s-pill::before{content:'';width:5px;height:5px;border-radius:50%;display:block;}
+.sp-pending{background:var(--amber-bg);color:var(--amber);}.sp-pending::before{background:var(--amber);}
+.sp-closed{background:var(--green-bg);color:var(--green);}.sp-closed::before{background:var(--green);}
+.sp-review{background:var(--purple-bg);color:var(--purple);}.sp-review::before{background:var(--purple);}
+.sp-rejected{background:var(--red-bg);color:var(--red);}.sp-rejected::before{background:var(--red);}
+.div-tag{background:var(--purple-bg);color:var(--purple);padding:2px 7px;border-radius:9px;font-size:9.5px;font-weight:700;display:inline-block;}
+.hw-yes{background:rgba(4,120,87,0.1);color:var(--green);padding:2px 7px;border-radius:9px;font-size:9.5px;font-weight:700;display:inline-block;}
+.hw-no{background:rgba(107,140,168,0.1);color:var(--muted);padding:2px 7px;border-radius:9px;font-size:9.5px;font-weight:700;display:inline-block;}
+.mono{font-family:monospace;font-size:11px;}
+.bir-ref{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:800;background:rgba(0,104,181,0.08);color:var(--accent);border:1px solid rgba(0,104,181,0.18);font-family:monospace;letter-spacing:0.01em;}
+
+/* ?"??"? BUTTONS ?"??"? */
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(0,104,181,0.22);}.btn-primary:hover{background:var(--accent2);}
+.btn-success{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(4,120,87,0.2);}.btn-success:hover{background:#036644;}
+.btn-export{background:linear-gradient(135deg,var(--teal),var(--accent));color:#fff;box-shadow:0 2px 8px rgba(0,104,181,0.2);}.btn-export:hover{box-shadow:0 4px 14px rgba(0,104,181,0.3);transform:translateY(-1px);}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--soft);}.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:6px 13px;font-size:12px;}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:6px;border:1.5px solid var(--border);background:none;color:var(--soft);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.btn-xs:hover{border-color:var(--accent);color:var(--accent);background:var(--accent3);}
+.btn-xs.update{color:var(--accent);border-color:rgba(0,104,181,0.3);background:var(--accent3);}
+.btn-xs.view{color:var(--teal);border-color:rgba(14,116,144,0.3);background:var(--teal-bg);}
+.btn-xs.close-btn{color:var(--green);border-color:rgba(4,120,87,0.3);background:var(--green-bg);}
+.topbar-btn{padding:7px 13px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface);color:var(--soft);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.topbar-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent3);}
+.topbar-btn.primary{border-color:var(--accent);background:var(--accent);color:#fff;}
+.topbar-btn.primary:hover{background:var(--accent2);color:#fff;}
+
+/* ?"??"? LOADING / EMPTY ?"??"? */
+.loading-row td{text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-st{text-align:center;padding:50px 20px;}
+.ei{font-size:38px;margin-bottom:10px;opacity:0.28;}
+.et{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.es{font-size:12px;color:var(--muted);}
+
+/* ?"??"? FULL-SCREEN OVERLAY MODAL ?"??"? */
+.overlay{position:fixed;top:0;left:225px;right:0;bottom:0;background:rgba(5,18,38,0.55);backdrop-filter:blur(4px);z-index:500;display:none;align-items:stretch;}
+.overlay.open{display:flex;animation:fadeIn 0.18s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--surface);width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);z-index:2;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.modal-close{width:34px;height:34px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:rgba(185,28,28,0.3);}
+
+/* ?"??"? RECORD INFO STRIP ?"??"? */
+.rec-info{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface3);}
+.rec-info-item{padding:11px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.rec-info-item:nth-child(5n){border-right:none;}
+.rec-info-item:nth-child(n+6){border-bottom:none;}
+.rec-info-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:3px;}
+.rec-info-val{font-size:12.5px;font-weight:700;color:var(--accent);}
+.rec-info-val.normal{color:var(--text);font-weight:600;}
+
+/* ?"??"? MODAL TABS ?"??"? */
+.modal-tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);background:var(--surface3);flex-shrink:0;}
+.modal-tab{padding:11px 26px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:7px;}
+.modal-tab:hover{color:var(--text);background:var(--surface2);}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--surface);}
+.modal-tab.tab-view.active{color:var(--teal);border-bottom-color:var(--teal);}
+
+.modal-scroll{flex:1;overflow-y:auto;}
+.modal-body{padding:24px 28px;}
+
+/* ?"??"? FORM GRID ?"??"? */
+.form-section{margin-bottom:22px;}
+.form-section-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.fg-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.fg-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.fg-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.span2{grid-column:span 2;}.span3{grid-column:span 3;}.span4{grid-column:span 4;}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.ff label .req{color:var(--red);}
+.ff input,.ff select,.ff textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,104,181,0.08);}
+.ff input.err,.ff select.err{border-color:var(--red)!important;}
+.ff textarea{resize:none;height:80px;}
+.ff input[readonly]{background:var(--surface3);color:var(--muted);cursor:not-allowed;}
+.ff input::placeholder,.ff textarea::placeholder{color:var(--muted);font-size:11.5px;}
+
+/* ?"??"? DETAIL VIEW ?"??"? */
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.detail-item{background:var(--surface3);border:1px solid var(--border2);border-radius:9px;padding:11px 13px;}
+.detail-item.span2{grid-column:span 2;}
+.detail-item.span4{grid-column:span 4;}
+.detail-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px;}
+.detail-val{font-size:13px;font-weight:600;color:var(--text);line-height:1.5;word-break:break-word;white-space:normal;}
+.detail-val.accent{color:var(--accent);}
+
+.modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;justify-content:flex-end;background:var(--surface3);flex-shrink:0;}
+.form-msg{font-size:11.5px;font-weight:600;padding:7px 13px;border-radius:7px;margin-right:auto;display:none;}
+.form-msg.ok{display:block;background:var(--green-bg);color:var(--green);border:1px solid rgba(4,120,87,0.2);}
+.form-msg.err{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(185,28,28,0.18);}
+
+/* ?"??"? TOAST ?"??"? */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:700;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 15px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:9px;min-width:230px;animation:fadeUp 0.28s ease;box-shadow:0 8px 22px rgba(0,0,0,0.1);}
+.toast.ok{border-color:rgba(4,120,87,0.35);}.toast.ok .td{background:var(--green);}
+.toast.err{border-color:rgba(185,28,28,0.35);}.toast.err .td{background:var(--red);}
+.toast.info{border-color:rgba(0,104,181,0.35);}.toast.info .td{background:var(--accent);}
+.td{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ?"??"? LOADING / EMPTY ?"??"? */
+.loading-row td{text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-st{text-align:center;padding:50px 20px;}
+.ei{font-size:38px;margin-bottom:10px;opacity:0.28;}
+.et{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.es{font-size:12px;color:var(--muted);}
+
+/* ?"??"? FULL-SCREEN OVERLAY MODAL ?"??"? */
+.overlay{position:fixed;top:0;left:225px;right:0;bottom:0;background:rgba(5,18,38,0.55);backdrop-filter:blur(4px);z-index:500;display:none;align-items:stretch;}
+.overlay.open{display:flex;animation:fadeIn 0.18s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--surface);width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);z-index:2;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.modal-close{width:34px;height:34px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:rgba(185,28,28,0.3);}
+
+/* ?"??"? RECORD INFO STRIP ?"??"? */
+.rec-info{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface3);}
+.rec-info-item{padding:11px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.rec-info-item:nth-child(5n){border-right:none;}
+.rec-info-item:nth-child(n+6){border-bottom:none;}
+.rec-info-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:3px;}
+.rec-info-val{font-size:12.5px;font-weight:700;color:var(--accent);}
+.rec-info-val.normal{color:var(--text);font-weight:600;}
+
+/* ?"??"? MODAL TABS ?"??"? */
+.modal-tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);background:var(--surface3);flex-shrink:0;}
+.modal-tab{padding:11px 26px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:7px;}
+.modal-tab:hover{color:var(--text);background:var(--surface2);}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--surface);}
+.modal-tab.tab-view.active{color:var(--teal);border-bottom-color:var(--teal);}
+
+.modal-scroll{flex:1;overflow-y:auto;}
+.modal-body{padding:24px 28px;}
+
+/* ?"??"? FORM GRID ?"??"? */
+.form-section{margin-bottom:22px;}
+.form-section-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.fg-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.fg-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.fg-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.span2{grid-column:span 2;}.span3{grid-column:span 3;}.span4{grid-column:span 4;}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.ff label .req{color:var(--red);}
+.ff input,.ff select,.ff textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,104,181,0.08);}
+.ff input.err,.ff select.err{border-color:var(--red)!important;}
+.ff textarea{resize:none;height:80px;}
+.ff input[readonly]{background:var(--surface3);color:var(--muted);cursor:not-allowed;}
+.ff input::placeholder,.ff textarea::placeholder{color:var(--muted);font-size:11.5px;}
+
+/* ?"??"? DETAIL VIEW ?"??"? */
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.detail-item{background:var(--surface3);border:1px solid var(--border2);border-radius:9px;padding:11px 13px;}
+.detail-item.span2{grid-column:span 2;}
+.detail-item.span4{grid-column:span 4;}
+.detail-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:4px;}
+.detail-val{font-size:13px;font-weight:600;color:var(--text);line-height:1.5;word-break:break-word;white-space:normal;}
+.detail-val.accent{color:var(--accent);}
+
+.modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;justify-content:flex-end;background:var(--surface3);flex-shrink:0;}
+.form-msg{font-size:11.5px;font-weight:600;padding:7px 13px;border-radius:7px;margin-right:auto;display:none;}
+.form-msg.ok{display:block;background:var(--green-bg);color:var(--green);border:1px solid rgba(4,120,87,0.2);}
+.form-msg.err{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(185,28,28,0.18);}
+
+/* ?"??"? TOAST ?"??"? */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:700;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 15px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:9px;min-width:230px;animation:fadeUp 0.28s ease;box-shadow:0 8px 22px rgba(0,0,0,0.1);}
+.toast.ok{border-color:rgba(4,120,87,0.35);}.toast.ok .td{background:var(--green);}
+.toast.err{border-color:rgba(185,28,28,0.35);}.toast.err .td{background:var(--red);}
+.toast.info{border-color:rgba(0,104,181,0.35);}.toast.info .td{background:var(--accent);}
+.td{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* EBIR Section Styles */
+.ebir-section-frozen{position:relative;border:1.5px solid rgba(0,119,204,0.18);border-radius:12px;padding:20px;margin-top:22px;background:linear-gradient(135deg,rgba(0,119,204,0.03),rgba(8,145,178,0.04));}
+.ebir-section-frozen::before{content:'🔒 LOCKED';position:absolute;top:-10px;right:16px;background:linear-gradient(135deg,var(--accent),var(--teal));color:#fff;font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 10px;border-radius:10px;}
+.ebir-section-frozen .ff input,.ebir-section-frozen .ff select,.ebir-section-frozen .ff textarea{background:var(--surface3)!important;color:var(--muted)!important;cursor:not-allowed;}
+.ebir-section-unlocked{position:relative;border:1.5px solid rgba(5,150,105,0.22);border-radius:12px;padding:20px;margin-top:22px;background:linear-gradient(135deg,rgba(5,150,105,0.03),rgba(5,150,105,0.05));}
+.ebir-section-unlocked::before{content:'🔓 UNLOCKED';position:absolute;top:-10px;right:16px;background:linear-gradient(135deg,var(--green),#10b981);color:#fff;font-size:9px;font-weight:700;letter-spacing:0.1em;padding:2px 10px;border-radius:10px;}
+.ebir-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.ebir-section-title .ebir-dot{width:6px;height:6px;border-radius:50%;}
+.ebir-section-frozen::before{content:'\1F512  LOCKED';}
+.ebir-section-unlocked::before{content:'\1F513  UNLOCKED';}
+.ebir-section-unlocked.view-only::before{content:'\1F512  VIEW ONLY';background:linear-gradient(135deg,var(--teal),var(--accent));}
+
+.nav-group-toggle{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;color:var(--soft,#3d6480);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;margin-bottom:3px;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;}
+.nav-group-toggle:hover{background:var(--surface2,#e8f0f7);color:var(--text,#0f2236);}
+.nav-group-toggle .ico{font-size:12px;width:17px;text-align:center;flex-shrink:0;}
+.nav-group-toggle .caret{margin-left:auto;font-size:10px;transition:transform .22s ease;}
+.nav-group-toggle.open .caret{transform:rotate(90deg);}
+.nav-children{max-height:0;overflow:hidden;transition:max-height .28s ease;margin-bottom:3px;}
+.nav-children.open{max-height:650px;}
+.nav-sub .nav-item{padding-left:28px;font-size:11.5px;}
+</style>
+  <link rel="stylesheet" href="global-typography.css">
+  <link rel="stylesheet" href="employee-theme.css">
+  <script src="employee-theme.js"></script>
+  <link rel="stylesheet" href="topbar-alignment.css">
+  <link rel="stylesheet" href="brand-logo.css">
+  <script src="brand-logo.js" defer></script>
+</head>
+<body>
+
+<!-- ----------- UPDATE MODAL ----------- -->
+<div class="overlay" id="update-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">&#9998; Update BIR Record</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:3px;" id="modal-sub">Fill in the update fields and save.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()" title="Close (Esc)">&#10005;</button>
+    </div>
+
+    <div class="modal-scroll">
+      <div class="modal-body">
+        <input type="hidden" id="upd-id"/>
+
+        <!-- FQC Section (LOCKED - read-only, shows all FQC data) -->
+        <div class="ebir-section-frozen" id="fqc-section">
+          <div class="ebir-section-title"><span class="ebir-dot" style="background:var(--accent)"></span> FQC Section</div>
+          <div class="fg-4">
+            <div class="ff"><label>Division</label><input type="text" id="upd-division" disabled/></div>
+            <div class="ff"><label>Unit Inward Date</label><input type="date" id="upd-inward-date" disabled/></div>
+            <div class="ff"><label>FQC Inward Date</label><input type="date" id="upd-fqc-inward-date" disabled/></div>
+            <div class="ff"><label>BIR Reference No.</label><input type="text" id="upd-bir-ref" disabled/></div>
+            <div class="ff"><label>Supplier</label><input type="text" id="upd-supplier" disabled/></div>
+            <div class="ff"><label>Model</label><input type="text" id="upd-model" disabled/></div>
+            <div class="ff"><label>Configuration</label><input type="text" id="upd-configuration" disabled/></div>
+            <div class="ff"><label>Received Qty</label><input type="text" id="upd-received-qty" disabled/></div>
+            <div class="ff"><label>Unit Serial No.</label><input type="text" id="upd-serial" disabled/></div>
+            <div class="ff"><label>Invoice No.</label><input type="text" id="upd-invoice-no" disabled/></div>
+            <div class="ff"><label>Invoice Date</label><input type="date" id="upd-invoice-date" disabled/></div>
+            <div class="ff"><label>Previous Software Version</label><input type="text" id="upd-prev-sw" disabled/></div>
+            <div class="ff"><label>Present Software Version</label><input type="text" id="upd-pres-sw" disabled/></div>
+            <div class="ff"><label>Accessory Changes</label><input type="text" id="upd-acc-changes" disabled/></div>
+            <div class="ff"><label>Accessory Details</label><input type="text" id="upd-acc-details" disabled/></div>
+            <div class="ff"><label>User Manual Update</label><input type="text" id="upd-manual-update" disabled/></div>
+            <div class="ff"><label>FQC Remarks</label><input type="text" id="upd-fqc-remarks-disp" disabled/></div>
+            <div class="ff">
+              <label>Status</label>
+              <select id="upd-final-status" required disabled>
+                <option value="Pending">Pending</option>
+                <option value="TS Pending">TS Pending</option>
+                <option value="PT Pending">PT Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Under Review">Under Review</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service / Engineer Section (UNLOCKED - editable) -->
+        <div class="ebir-section-unlocked" id="service-section">
+          <div class="ebir-section-title"><span class="ebir-dot" style="background:var(--green)"></span> Service Section</div>
+          <div class="fg-4">
+            <div class="ff"><label>SC Engineer</label><select id="upd-sc-engineer" required><option value="">Select Engineer...</option></select></div>
+            <div class="ff"><label>SC Observation</label><input type="text" id="upd-sc-obs" required/></div>
+            <div class="ff"><label>Hardware Changes</label><input type="text" id="upd-hw-changes" required/></div>
+            <div class="ff"><label>Hardware Change Remarks</label><input type="text" id="upd-hw-remarks" required/></div>
+            <div class="ff"><label>Accessory Change Remarks</label><input type="text" id="upd-acc-remarks"/></div>
+            <div class="ff"><label>Service Manual Update</label>
+              <select id="upd-service-manual" required>
+                <option value="">Select</option><option>Yes</option><option>No</option>
+              </select>
+            </div>
+            <div class="ff"><label>Technical Remarks</label><input type="text" id="upd-tech-remarks" required/></div>
+            <div class="ff"><label>TS Verification Date</label><input type="date" id="upd-ts-date" required/></div>
+          </div>
+        </div>
+
+        <!-- Product Team Section (LOCKED) -->
+        <div class="ebir-section-frozen" id="product-section" style="display:none;">
+          <div class="ebir-section-title"><span class="ebir-dot" style="background:var(--purple)"></span> Product Team Section</div>
+          <div class="fg-4">
+            <div class="ff"><label>PS Engineer</label><input type="text" id="upd-ps-engineer" disabled/></div>
+            <div class="ff"><label>CNR / Technews Circulation</label>
+              <select id="upd-cnr" disabled>
+                <option value="">Select...</option>
+                <option value="Required">Required</option>
+                <option value="Not Required">Not Required</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <div class="ff"><label>CNR/Technews Reference No.</label><input type="text" id="upd-cnr-ref" disabled/></div>
+            <div class="ff"><label>CNR/Technews Release Date</label><input type="date" id="upd-cnr-date" disabled/></div>
+            <div class="ff"><label>PS Team Verification Date</label><input type="date" id="upd-ps-date" disabled/></div>
+            <div class="ff"><label>Product Team Remarks</label><input type="text" id="upd-pt-remarks" disabled/></div>
+            <div class="ff"><label>Approved Date</label><input type="date" id="upd-approved-date" disabled/></div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /modal-scroll -->
+
+    <div class="modal-footer">
+      <div class="form-msg" id="upd-msg"></div>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-success" id="upd-save-btn" onclick="submitUpdate()">&#128190; Save Update</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- === SIDEBAR === -->
+<aside class="sidebar">
+  <div class="sidebar-header" style="background:linear-gradient(145deg,#002d5c,#0068b5);">
+    <div class="logo-wrap">
+      <img class="brand-logo-img" src="logo.png" alt="SCHILLER">
+    </div>
+  </div>
+  <div style="padding:7px 12px 0;"><span class="emp-badge">Employee</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-sec">Operations</div>
+    <a class="nav-item" href="employee-dashboard.html"><span class="icon">&#128202;</span> Dashboard</a>
+    <a class="nav-item" href="employee-service-list.html"><span class="ico">&#128225;</span> Services</a>
+    <a class="nav-item" href="emppendingfrn.html"><span class="ico">&#128221;</span> Pending FRN</a>
+    <a class="nav-item" href="employee-ob-pending.html"><span class="ico">&#128230;</span> Estimation Pending</a>
+    <a class="nav-item" href="empestpend.html"><span class="ico">&#128203;</span> SO Pending</a>
+    <a class="nav-item" href="empunderep.html"><span class="ico">&#128736;&#65039;</span> Under Repair</a>
+    <a class="nav-item" href="completed-frn.html"><span class="ico">&#9989;</span> Completed FRN</a>
+    <a class="nav-item" href="eprfob.html"><span class="ico">&#128203;</span> TO/SO Register</a>
+    <a class="nav-item" href="ecr.html"><span class="ico">&#128274;</span> Closed TO/SO Register</a>
+    <a class="nav-item" href="elt.html"><span class="ico">&#128451;</span> Loan Items</a>
+    <a class="nav-item" href="ecli.html"><span class="ico">&#128193;</span> Closed Loan Item</a>
+    <a class="nav-item" href="sr.html"><span class="ico">&#128221;</span> Service Request</a>
+    <a class="nav-item" href="csr.html"><span class="ico">&#9989;</span> Closed SR</a>
+    <button class="nav-group-toggle" type="button" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><span class="ico">&#128736;&#65039;</span><span>Re-Export/Rep</span><span class="caret">&#9656;</span></button>
+    <div class="nav-children nav-sub">
+      <a class="nav-item" href="Emp-scrap-list.html"><span class="ico">&#9888;&#65039;</span> Re-Export Pending</a>
+      <a class="nav-item" href="csw.html"><span class="ico">&#128274;</span> Re-Export Completed</a>
+      <a class="nav-item" href="sc-completed-frn.html"><span class="ico">&#128257;</span> External Repair</a>
+      <a class="nav-item" href="cer.html"><span class="ico">&#128274;</span> Closed Ext Rep</a>
+    </div>
+    <button class="nav-group-toggle" type="button" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><span class="ico">&#128193;</span><span>Activity Register</span><span class="caret">&#9656;</span></button>
+    <div class="nav-children nav-sub">
+      <a class="nav-item" href="epa.html"><span class="ico">&#128221;</span> Pending Activity</a>
+      <a class="nav-item" href="ecpa.html"><span class="ico">&#9989;</span> Closed Activity</a>
+      <a class="nav-item" href="ecall.html"><span class="ico">&#128222;</span> Call Register</a>
+      <a class="nav-item" href="eclose.html"><span class="ico">&#9989;</span> Closed Calls</a>
+      <a class="nav-item" href="tours.html"><span class="ico">&#128506;&#65039;</span> Tour Summary</a>
+      <a class="nav-item" href="dailyw.html"><span class="ico">&#128221;</span> Daily Work</a>
+    </div>
+    <button class="nav-group-toggle open" type="button" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><span class="ico">&#128230;</span><span>Reports</span><span class="caret">&#9656;</span></button>
+    <div class="nav-children nav-sub open">
+      <a class="nav-item" href="emp-non-saleable.html"><span class="ico">&#128230;</span> Non Saleable</a>
+      <a class="nav-item" href="emp-saleables.html"><span class="ico">&#128176;</span> Saleables</a>
+      <a class="nav-item active" href="ebir.html"><span class="ico">&#128202;</span> BIR LIST</a>
+      <a class="nav-item" href="ecbir.html"><span class="ico">&#128193;</span> Closed BIR</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="emp-avatar">E</div>
+      <div>
+        <div class="user-nm" id="emp-name">Employee</div>
+        <div class="user-rl" id="emp-desig">Field Engineer</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">&#8617;&#65039;</button>
+    </div>
+  </div>
+</aside>
+
+<!-- =========== MAIN =========== -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb">
+        <a href="employee-dashboard.html">Dashboard</a><span class="sep">&#8250;</span>
+        <span>Inventory</span><span class="sep">&#8250;</span>
+        <span>BIR LIST</span>
+      </div>
+      <div class="page-title">Batch Inspection Report</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+      <span style="font-size:11.5px;color:var(--muted);" id="topbar-date"></span>
+      <button class="topbar-btn" onclick="loadData()">&#8635; Refresh</button>
+      <button class="topbar-btn primary" onclick="exportCSV()">&#128228; Export CSV</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-top">
+        <div class="table-title">BIR List <span class="count-chip" id="count-chip">&#8212; entries</span></div>
+        <div class="toolbar-r">
+          <div class="show-row">
+            Show
+            <select class="f-select" id="per-page" style="padding:5px 8px;min-width:60px;" onchange="renderTable()">
+              <option>10</option><option>25</option><option>50</option><option>100</option>
+            </select>
+            entries
+          </div>
+          <div class="srch-wrap">
+            <span class="srch-ico">&#128269;</span>
+            <input type="text" id="tbl-search" placeholder="Search BIR Ref, model, division..." oninput="applyFilters()"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="bir-table">
+          <thead><tr>
+            <th class="no-sort">Action</th>
+            <th onclick="sortBy('birRefNo')">BIR Ref No. <span class="si">&#8597;</span></th>
+            <th onclick="sortBy('inwardDate')">Inward Date <span class="si">&#8597;</span></th>
+            <th onclick="sortBy('division')">Division <span class="si">&#8597;</span></th>
+            <th onclick="sortBy('model')">Model <span class="si">&#8597;</span></th>
+            <th onclick="sortBy('configuration')">Config <span class="si">&#8597;</span></th>
+            <th onclick="sortBy('receivedQty')">Qty <span class="si">&#8597;</span></th>
+            <th>Accessory Details</th>
+            <th onclick="sortBy('finalStatus')">Status <span class="si">&#8597;</span></th>
+          </tr></thead>
+          <tbody id="bir-tbody">
+            <tr class="loading-row"><td colspan="9"><span class="spin"></span>Loading from database...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-foot">
+        <span id="tbl-info">&#8212;</span>
+        <div class="pager-row" id="tbl-pagination"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = '';
+let DATA = [], filtered = [], sortKey = 'inwardDate', sortDir = -1, currentPage = 1;
+let activeTab = 'update';
+const LOGGED_USER = JSON.parse(sessionStorage.getItem('schiller_user') || '{}');
+let DB_ENGINEERS = [];
+let engineersReadyPromise = null;
+
+function normalizeDivisionName(value){
+  return String(value?.name || value?.divisionName || value?.division || value || '').trim().toUpperCase();
+}
+function getLoggedDivision(){
+  return localStorage.getItem('schiller_active_division') ||
+    sessionStorage.getItem('schiller_active_division') ||
+    LOGGED_USER.activeDivision ||
+    LOGGED_USER.division ||
+    LOGGED_USER.divisionName ||
+    (Array.isArray(LOGGED_USER.divisions) ? LOGGED_USER.divisions[0] : '') ||
+    '';
+}
+function getEngineerDivisions(engineer){
+  const values = [];
+  if(Array.isArray(engineer?.divisions)) values.push(...engineer.divisions);
+  if(engineer?.division) values.push(engineer.division);
+  if(engineer?.divisionName) values.push(engineer.divisionName);
+  return [...new Set(values.map(normalizeDivisionName).filter(Boolean))];
+}
+function engineerMatchesDivision(engineer, division){
+  const div = normalizeDivisionName(division);
+  return div && getEngineerDivisions(engineer).includes(div);
+}
+async function fetchAllEngineers(){
+  try{
+    const res = await fetch(API + '/api/engineers', { headers: authHeaders() });
+    const json = await res.json().catch(()=>null);
+    const list = Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : []);
+    DB_ENGINEERS = list;
+  }catch(_err){
+    DB_ENGINEERS = [];
+  }
+}
+async function ensureEngineersLoaded(){
+  if(engineersReadyPromise) await engineersReadyPromise;
+  if(!DB_ENGINEERS.length){
+    engineersReadyPromise = fetchAllEngineers();
+    await engineersReadyPromise;
+  }
+}
+function fillScEngineerSelect(selected, recordDivision){
+  const sel = document.getElementById('upd-sc-engineer');
+  if(!sel) return;
+  const loginDivision = getLoggedDivision();
+  const div = normalizeDivisionName(loginDivision || recordDivision);
+  sel.innerHTML = div ? '<option value="">Select Engineer...</option>' : '<option value="">No login division found</option>';
+  let engineers = DB_ENGINEERS.filter(e => engineerMatchesDivision(e, div));
+  engineers.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  engineers.forEach(e=>{
+    const name = String(e.name || e.engineerName || '').trim();
+    if(!name) return;
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  const selectedName = String(selected || '').trim();
+  if(selectedName && !Array.from(sel.options).some(o => o.value === selectedName)){
+    const opt = document.createElement('option');
+    opt.value = selectedName;
+    opt.textContent = selectedName;
+    sel.appendChild(opt);
+  }
+  if(selectedName) sel.value = selectedName;
+  if(div && !engineers.length && !selectedName) sel.innerHTML = '<option value="">No engineers found for your division</option>';
+}
+
+/* ?"??"? INIT ?"??"? */
+(function init(){
+  const u = LOGGED_USER;
+  const name = u.name || sessionStorage.getItem('schiller_name');
+  if(name){
+    (document.getElementById('emp-name')||{}).textContent = name;
+    (document.getElementById('emp-avatar')||{}).textContent = name.charAt(0).toUpperCase();
+    (document.getElementById('emp-desig')||{}).textContent = u.designation || (u.role === 'admin' ? 'Administrator' : 'Field Engineer');
+  }
+  (document.getElementById('topbar-date')||{}).textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  engineersReadyPromise = fetchAllEngineers();
+  loadData();
+})();
+
+function getToken(){ return sessionStorage.getItem('schiller_token') || ''; }
+function authHeaders(){ return { 'Content-Type':'application/json', Authorization:'Bearer '+getToken() }; }
+function handleUnauth(res){
+  if(res.status===401||res.status===403){
+    showToast('Session expired - please log in again.','err');
+    setTimeout(()=>window.location.href='login.html',1500);
+    throw new Error('Unauthorized');
+  }
+}
+
+/* ?"??"? LOAD ?"??"? */
+function fetchWithTimeout(url, options={}, timeoutMs=12000){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(),timeoutMs);
+  return fetch(url,{...options,signal:controller.signal}).finally(()=>clearTimeout(timer));
+}
+function showLoadError(message){
+  DATA = [];
+  filtered = [];
+  updateStats();
+  document.getElementById('bir-tbody').innerHTML = `
+    <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted);">
+      <div style="font-weight:700;color:var(--red);margin-bottom:6px;">Could not load BIR records</div>
+      <div>${esc(message)}</div>
+      <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="loadData()">&#8635; Try Again</button>
+    </td></tr>`;
+  (document.getElementById('count-chip')||{}).textContent = '0 entries';
+  (document.getElementById('tbl-info')||{}).textContent = '0 entries';
+  (document.getElementById('tbl-pagination')||{}).innerHTML = '';
+}
+async function loadData(){
+  setLoading();
+  try{
+    const res = await fetchWithTimeout(API+'/api/emp/bir',{headers:authHeaders()});
+    handleUnauth(res);
+    if(!res.ok){
+      const body = await res.json().catch(()=>({}));
+      throw new Error(body.error||body.message||('HTTP '+res.status));
+    }
+    DATA = await res.json();
+    DATA = DATA.map(d=>({...d, id: d._id||d.id}));
+    applyFilters();
+    updateStats();
+    const b = document.getElementById('sidebar-bir-count');
+    if(b) b.textContent = DATA.length;
+    showToast('Loaded '+DATA.length+' record'+(DATA.length!==1?'s':''),'info');
+  }catch(e){
+    if(e.message === 'Unauthorized') return;
+    showLoadError(e.name==='AbortError'?'Database request timed out. Please try again.':e.message);
+    showToast('Could not load BIR records.','err');
+  }
+}
+
+function generateDemoData(){
+  const divs = ['PATIENT MONITORS','SAG','VENTILATOR','DEFIBRILLATOR','ECG','ULTRASOUND','ANAESTHESIA'];
+  const models = ['BLT CNS','TS III','TS ULTRA Q5','TS TOUCH MINI','ETCO2 MODULE','MPS','P15'];
+  const configs = ['DUAL DISPLAY','5P','5P+A+WOT','5P+N+WOT+VGA','CAPNO CO2','MPS-P02-5P+12lead'];
+  const statuses = ['Pending','Pending','Pending','Closed','Under Review','Closed','Rejected'];
+  const hwVals = ['Yes','No','NA'];
+  const swVers = ['V02.00.00.RE01','V.1.1.0.0109','1.0.5-DRE','1.3.0-CRM','NA','V1.2.4'];
+  const accDetails = ['std acc recd','std acc recd without skin temp probe','Analog/Digital 12 pin probe available','std acc recd - VGA cable missing'];
+  const cnrVals = ['Not Required','Required','Completed','In Progress'];
+  const data = [];
+  for(let i=1;i<=28;i++){
+    const st = statuses[Math.floor(Math.random()*statuses.length)];
+    const d = new Date(2026,Math.floor(Math.random()*4),Math.floor(Math.random()*28)+1);
+    data.push({
+      _id:'demo_'+i, id:i,
+      inwardDate: d.toISOString().slice(0,10),
+      division: divs[Math.floor(Math.random()*divs.length)],
+      model: models[Math.floor(Math.random()*models.length)],
+      configuration: configs[Math.floor(Math.random()*configs.length)],
+      receivedQty: Math.floor(Math.random()*50)+1+'nos',
+      prevSwVersion: swVers[Math.floor(Math.random()*swVers.length)],
+      hwChanges: hwVals[Math.floor(Math.random()*hwVals.length)],
+      accessoryDetails: accDetails[Math.floor(Math.random()*accDetails.length)],
+      cnrCirculation: cnrVals[Math.floor(Math.random()*cnrVals.length)],
+      birRefNo: 'OEM/'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+'26/'+String(i).padStart(2,'0'),
+      finalStatus: st,
+      scInwardDate: '',
+      scObservation: '',
+      requiredParts: '',
+      rootCause: '',
+      scActionPlan: '',
+      tentativeDate: '',
+      shipDateToFqc: '',
+      fqcFinalRemarks: '',
+      fqcObservation: st==='Closed'?'Inspection passed. Unit functional.':'',
+      defUnitReceivedDate: '',
+      replacementShipDate: '',
+    });
+  }
+  return data;
+}
+
+/* ?"??"? STATS ?"??"? */
+function updateStats(){
+  (document.getElementById('s-total')||{}).textContent = DATA.length;
+  (document.getElementById('s-ts-pending')||{}).textContent = DATA.filter(d=>['Pending', 'TS Pending', 'In Progress'].includes(d.finalStatus) || ['Pending', 'TS Pending', 'In Progress'].includes(d.status)).length;
+  (document.getElementById('s-ps-pending')||{}).textContent = DATA.filter(d=>['PT Pending', 'Under Review'].includes(d.finalStatus) || ['PT Pending', 'Under Review'].includes(d.status)).length;
+}
+
+/* ?"??"? FILTERS ?"??"? */
+function clearFilters(){
+  ['fl-from','fl-to','fl-division','fl-status','fl-hw','tbl-search'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  applyFilters();
+}
+function divisionMatches(recordDivision, selectedDivision){
+  if(!selectedDivision) return true;
+  const record = String(recordDivision || '').trim().toUpperCase();
+  const selected = String(selectedDivision || '').trim().toUpperCase();
+  return record === selected;
+}
+function applyFilters(){
+  const searchEl = document.getElementById('tbl-search');
+  const q = searchEl ? searchEl.value.toLowerCase() : '';
+
+  filtered = DATA.filter(d=>
+    (!q || ((d.birRefNo||'')+' '+(d.model||'')+' '+(d.division||'')+' '+(d.configuration||'')).toLowerCase().includes(q))
+  );
+  sortArr(); currentPage = 1; renderTable();
+}
+
+function sortBy(k){
+  if(sortKey===k) sortDir*=-1; else {sortKey=k; sortDir=-1;}
+  sortArr(); renderTable();
+}
+function sortArr(){
+  filtered.sort((a,b)=>{
+    const av=a[sortKey]??'', bv=b[sortKey]??'';
+    if(typeof av==='number'&&typeof bv==='number') return (av-bv)*sortDir;
+    return String(av).toLowerCase()<String(bv).toLowerCase()?-sortDir:String(av).toLowerCase()>String(bv).toLowerCase()?sortDir:0;
+  });
+}
+
+/* ?"??"? RENDER ?"??"? */
+function statusPill(s){
+  const m = {Pending:'sp-pending','TS Pending':'sp-pending','PT Pending':'sp-review',Closed:'sp-closed','Under Review':'sp-review',Rejected:'sp-rejected'};
+  return '<span class="s-pill '+(m[s]||'sp-pending')+'">'+esc(s||'Pending')+'</span>';
+}
+function canUpdateRecord(d){
+  return ['Pending','TS Pending','In Progress',''].includes(String(d.finalStatus||d.status||'').trim());
+}
+function renderTable(){
+  const perPage = parseInt(document.getElementById('per-page').value,10) || 10;
+  const total = filtered.length;
+  const pages = Math.max(1,Math.ceil(total/perPage));
+  if(currentPage>pages) currentPage=pages;
+  const start = (currentPage-1)*perPage;
+  const rows = filtered.slice(start,start+perPage);
+  (document.getElementById('count-chip')||{}).textContent = total+' entr'+(total===1?'y':'ies');
+  (document.getElementById('tbl-info')||{}).textContent = total
+    ? 'Showing '+(start+1)+' to '+Math.min(start+perPage,total)+' of '+total+' entries'
+    : '0 entries';
+  document.getElementById('bir-tbody').innerHTML = rows.length ? rows.map(d=>{
+    const editable = canUpdateRecord(d);
+    const actionClass = editable ? 'update' : 'view';
+    const actionIcon = editable ? '&#9998;' : '&#128065;';
+    const actionLabel = editable ? 'Update' : 'View';
+    return `
+    <tr onclick="openUpdate('${esc(d._id||d.id)}',${!editable})">
+      <td onclick="event.stopPropagation()"><button class="btn-xs ${actionClass}" onclick="openUpdate('${esc(d._id||d.id)}',${!editable})">${actionIcon} ${actionLabel}</button></td>
+      <td><span class="bir-ref">${esc(d.birRefNo||'-')}</span></td>
+      <td>${fmtDate(d.inwardDate)}</td>
+      <td><span class="div-tag">${esc(d.division||'-')}</span></td>
+      <td>${esc(d.model||'-')}</td>
+      <td>${esc(d.configuration||'-')}</td>
+      <td>${esc(d.receivedQty||'-')}</td>
+      <td>${esc(d.accessoryDetails||'-')}</td>
+      <td>${statusPill(d.finalStatus||d.status)}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted);">No BIR records found.</td></tr>';
+  renderPagination(pages);
+}
+async function openUpdate(id,readOnly=false){
+  const d = DATA.find(x=>String(x._id||x.id)===String(id));
+  if(!d) return;
+  readOnly = readOnly || !canUpdateRecord(d);
+  const set = (fieldId,value) => {
+    const el = document.getElementById(fieldId);
+    if(el) el.value = value || '';
+  };
+  set('upd-id', d._id||d.id);
+  set('upd-division', d.division);
+  set('upd-inward-date', d.inwardDate);
+  set('upd-fqc-inward-date', d.fqcInwardDate);
+  set('upd-bir-ref', d.birRefNo);
+  set('upd-supplier', d.supplier);
+  set('upd-model', d.model);
+  set('upd-configuration', d.configuration);
+  set('upd-received-qty', d.receivedQty);
+  set('upd-serial', d.serial);
+  set('upd-invoice-no', d.invoiceNo);
+  set('upd-invoice-date', d.invoiceDate);
+  set('upd-prev-sw', d.prevSwVersion);
+  set('upd-pres-sw', d.presSwVersion);
+  set('upd-acc-changes', d.accChanges);
+  set('upd-acc-details', d.accessoryDetails);
+  set('upd-manual-update', d.userManualUpdate);
+  set('upd-fqc-remarks-disp', d.fqcRemarks);
+  set('upd-sc-obs', d.scObservation);
+  set('upd-hw-changes', d.hwChanges);
+  set('upd-hw-remarks', d.hwChangeRemarks);
+  set('upd-acc-remarks', d.accChangeRemarks);
+  set('upd-service-manual', d.serviceManualUpdate);
+  set('upd-tech-remarks', d.techRemarks);
+  set('upd-final-status', d.finalStatus||'Pending');
+  await ensureEngineersLoaded();
+  fillScEngineerSelect(d.scEngineer,d.division);
+
+  const dObj = new Date();
+  const todayStr = dObj.getFullYear() + '-' + String(dObj.getMonth()+1).padStart(2,'0') + '-' + String(dObj.getDate()).padStart(2,'0');
+  const tsDateEl = document.getElementById('upd-ts-date');
+  if (tsDateEl) {
+    tsDateEl.value = readOnly ? (d.tsVerificationDate||'') : todayStr;
+    tsDateEl.min = readOnly ? '' : todayStr;
+    tsDateEl.max = readOnly ? '' : todayStr;
+  }
+  set('upd-ps-engineer', d.psEngineer);
+  set('upd-cnr-ref', d.cnrRefNo);
+  set('upd-cnr-date', d.cnrReleaseDate);
+  set('upd-ps-date', d.psVerificationDate);
+  set('upd-pt-remarks', d.productTeamRemarks);
+  set('upd-approved-date', d.approvedDate);
+
+  const serviceFields = ['upd-sc-engineer','upd-sc-obs','upd-hw-changes','upd-hw-remarks','upd-acc-remarks','upd-service-manual','upd-tech-remarks','upd-ts-date'];
+  serviceFields.forEach(fieldId=>{
+    const el = document.getElementById(fieldId);
+    if(el) el.disabled = readOnly;
+  });
+  document.getElementById('service-section').classList.toggle('view-only',readOnly);
+  document.getElementById('upd-save-btn').style.display = readOnly ? 'none' : '';
+  document.getElementById('modal-title').innerHTML = readOnly ? '&#128065; View BIR Record' : '&#9998; Update BIR Record';
+  document.getElementById('modal-sub').textContent = readOnly ? 'This record has already been sent to Product Team.' : 'Fill in the update fields and save.';
+  clearMsg();
+  document.getElementById('update-overlay').classList.add('open');
+  document.querySelector('.modal-scroll').scrollTop = 0;
+}
+
+function closeModal(){ document.getElementById('update-overlay').classList.remove('open'); }
+
+/* -- SUBMIT -- */
+async function submitUpdate(){
+  const id = document.getElementById('upd-id').value;
+  let finalStatus = document.getElementById('upd-final-status').value;
+  const msg = document.getElementById('upd-msg');
+  const requiredFields = [
+    ['upd-final-status','Status'],
+    ['upd-sc-engineer','SC Engineer'],
+    ['upd-sc-obs','SC Observation'],
+    ['upd-hw-changes','Hardware Changes'],
+    ['upd-hw-remarks','Hardware Change Remarks'],
+    ['upd-service-manual','Service Manual Update'],
+    ['upd-tech-remarks','Technical Remarks'],
+    ['upd-ts-date','TS Verification Date'],
+  ];
+  const missing = [];
+  requiredFields.forEach(([fieldId, label]) => {
+    const el = document.getElementById(fieldId);
+    if(!el) return;
+    const empty = !String(el.value || '').trim();
+    el.classList.toggle('err', empty);
+    if(empty) missing.push(label);
+  });
+  if(missing.length){
+    msg.textContent = 'Please fill all update fields before saving.';
+    msg.className = 'form-msg err';
+    showToast('Please fill all update fields.','err');
+    const firstMissing = document.querySelector('#update-overlay .err');
+    if(firstMissing) firstMissing.focus();
+    return;
+  }
+
+  const editPayload = {
+    scObservation:       document.getElementById('upd-sc-obs').value.trim(),
+    hwChanges:           document.getElementById('upd-hw-changes').value.trim(),
+    hwChangeRemarks:     document.getElementById('upd-hw-remarks').value.trim(),
+    accChangeRemarks:    document.getElementById('upd-acc-remarks').value.trim(),
+    finalStatus:         finalStatus,
+    tsVerificationDate:  document.getElementById('upd-ts-date').value,
+    scEngineer:          document.getElementById('upd-sc-engineer').value.trim() || (JSON.parse(sessionStorage.getItem('schiller_user') || '{}').name || ''),
+    serviceManualUpdate: document.getElementById('upd-service-manual').value,
+    techRemarks:         document.getElementById('upd-tech-remarks').value.trim(),
+  };
+  finalStatus = 'PT Pending';
+  editPayload.finalStatus = finalStatus;
+  document.getElementById('upd-final-status').value = finalStatus;
+
+  const btn = document.getElementById('upd-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  try{
+    const res = await fetch(API+'/api/emp/bir/'+id,{method:'PUT',headers:authHeaders(),body:JSON.stringify(editPayload)});
+    handleUnauth(res);
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||e.message||'HTTP '+res.status);}
+    const saved = await res.json().catch(()=>({}));
+    const idx = DATA.findIndex(x=>(x._id||x.id)===id);
+    if(idx!==-1) DATA[idx]={...DATA[idx],...editPayload,...saved};
+    filtered=filtered.map(x=>(x._id||x.id)===id?{...x,...editPayload,...saved}:x);
+    updateStats(); renderTable();
+    msg.innerHTML='&#10004; Record sent to Product Team!';
+    msg.className='form-msg ok';
+    showToast('BIR record sent to Product Team.','ok');
+    setTimeout(()=>closeModal(),1100);
+  }catch(e){
+    if(e.message!=='Unauthorized'){
+      msg.textContent='Save failed: '+e.message;
+      msg.className='form-msg err';
+      showToast('Update failed: '+e.message,'err');
+    }
+  }finally{
+    btn.disabled = false; btn.innerHTML = '&#128190; Save Update';
+  }
+}
+
+/* -- EXPORT -- */
+function exportCSV(){
+  if (!filtered.length) { showToast('No records to export.', 'err'); return; }
+  const headers=['#','Inward Date','Division','Model','Configuration','Received Qty','Prev SW Version','HW Changes','Accessory Details','CNR Circulation','BIR Ref No.','Status','SC Inward Date','SC Action Plan','Tentative Date','Ship Date to FQC','SC Final Remarks','FQC Observation'];
+  const rows = filtered.map((d,i)=>[
+    i+1,d.inwardDate,d.division,d.model,d.configuration,d.receivedQty,
+    d.prevSwVersion,d.hwChanges,d.accessoryDetails,d.cnrCirculation,
+    d.birRefNo,d.finalStatus,d.scInwardDate,d.scActionPlan,d.tentativeDate,d.shipDateToFqc,d.fqcFinalRemarks,d.fqcObservation
+  ]);
+  let csv = headers.join(',') + '\n';
+  rows.forEach(r => {
+    csv += r.map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(',') + '\n';
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bir-list-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported ' + filtered.length + ' records.', 'ok');
+}
+
+/* -- PAGINATION -- */
+function renderPagination(pages){
+  const el = document.getElementById('tbl-pagination');
+  if(pages<=1){el.innerHTML='';return;}
+  let h = '<button class="pager" '+(currentPage===1?'disabled':'')+' onclick="gp('+(currentPage-1)+')">&#8249; Prev</button>';
+  getRange(currentPage,pages).forEach(p=>{
+    if(p==='&#8230;') h+='<button class="pager" disabled>&#8230;</button>';
+    else h+='<button class="pager '+(p===currentPage?'active':'')+'" onclick="gp('+p+')">'+p+'</button>';
+  });
+  h += '<button class="pager" '+(currentPage===pages?'disabled':'')+' onclick="gp('+(currentPage+1)+')">Next &#8250;</button>';
+  el.innerHTML = h;
+}
+function getRange(c,t){
+  if(t<=7) return Array.from({length:t},(_,i)=>i+1);
+  if(c<=4) return [1,2,3,4,5,'&#8230;',t];
+  if(c>=t-3) return [1,'&#8230;',t-4,t-3,t-2,t-1,t];
+  return [1,'&#8230;',c-1,c,c+1,'&#8230;',t];
+}
+function gp(p){ currentPage=p; renderTable(); }
+
+/* -- HELPERS -- */
+function setLoading(){
+  document.getElementById('bir-tbody').innerHTML = '<tr class="loading-row"><td colspan="9"><span class="spin"></span>Loading from database&#8230;</td></tr>';
+  ['s-total','s-pending','s-closed','s-review'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='&#8212;';});
+}
+function fmtDate(d){
+  if(!d) return '&#8212;';
+  const p = String(d).split('T')[0].split('-');
+  if(p.length<3) return String(d);
+  return p[2]+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(p[1])-1]+' '+p[0];
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg,type='ok'){ const w=document.getElementById('toast-wrap');const el=document.createElement('div');el.className='toast '+type;el.innerHTML='<span class="td"></span>'+msg;w.appendChild(el);setTimeout(()=>el.remove(),3400); }
+function clearMsg(){ const el=document.getElementById('upd-msg');el.textContent='';el.className='form-msg'; }
+function logout(){ sessionStorage.clear(); localStorage.clear(); window.location.href='login.html'; }
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
+</script>
+<script>
+function toggleSF(){var btn=document.getElementById('sf-toggle');var panel=document.getElementById('sf-children');if(!btn||!panel)return;btn.classList.toggle('open');panel.classList.toggle('open');}
+function toggleAR(){var btn=document.getElementById('ar-toggle');var panel=document.getElementById('ar-children');if(!btn||!panel)return;btn.classList.toggle('open');panel.classList.toggle('open');}</script>
+<script src="tab-fix.js"></script>
+</body>
+</html>
+
