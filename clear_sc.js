@@ -1,28 +1,21 @@
 const mongoose = require('mongoose');
-require('dotenv').config({ path: '.env' });
+require('dotenv').config({ path: 'backend/.env' });
 
 const modelsToClear = [
-  'Todr', 'Ctodr', 'Dr', 'ScPrfOb', 'sccr', 'LoanItem', 'ClosedLoan', 'EPrfOb'
+  'Todr', 'Ctodr', 'Dr', 'Cdr', 'ScPrfOb', 'sccr', 'LoanItem', 'ClosedLoan'
 ];
 
 async function run() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 5000 });
-    console.log('Connected to MongoDB');
-    
-    for (const modelName of modelsToClear) {
-      try {
-        const Model = require('./models/' + modelName);
-        const res = await Model.deleteMany({});
-        console.log(`Cleared ${modelName}: deleted ${res.deletedCount} documents`);
-      } catch (e) {
-        console.error(`Failed to clear ${modelName}:`, e.message);
-      }
+  await mongoose.connect(process.env.MONGO_URI);
+  for (const modelName of modelsToClear) {
+    try {
+      const Model = require('./backend/models/' + modelName);
+      const res = await Model.deleteMany({});
+      console.log(`Cleared ${modelName}: deleted ${res.deletedCount} documents`);
+    } catch (e) {
+      console.error(`Failed to clear ${modelName}:`, e.message);
     }
-  } catch(e) {
-    console.error('Connection error', e);
-  } finally {
-    mongoose.disconnect();
   }
+  mongoose.disconnect();
 }
-run();
+run().catch(console.error);
