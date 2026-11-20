@@ -1,0 +1,101 @@
+/* Project-wide topbar alignment */
+.topbar {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+.topbar > :first-child,
+.topbar-left {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.topbar:has(> :nth-child(2)) > :last-child,
+.topbar-actions,
+.topbar-right,
+#topbar-list-controls,
+#topbar-form-controls {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  text-align: right;
+}
+
+.topbar .breadcrumb,
+.topbar .topbar-title,
+.topbar .page-title,
+.topbar .topbar-date {
+  min-width: 0;
+}
+
+.topbar button,
+.topbar .btn,
+.topbar .topbar-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.topbar-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border, #ccdde8);
+  background: var(--surface2, #e8f0f7);
+  color: var(--soft, #3d6480);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  outline: none;
+  text-decoration: none;
+}
+
+.topbar-btn:hover {
+  border-color: var(--accent, #0068b5);
+  color: var(--accent, #0068b5);
+  background: var(--accent3, #e8f3fb);
+}
+
+.topbar-btn.primary {
+  background: var(--accent, #0068b5);
+  color: #ffffff !important;
+  border-color: var(--accent, #0068b5);
+  box-shadow: 0 2px 8px rgba(0, 104, 181, 0.22);
+}
+
+.topbar-btn.primary:hover {
+  background: var(--accent2, #005a9e) !important;
+  border-color: var(--accent2, #005a9e) !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    align-items: flex-start !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+  }
+
+  .topbar:has(> :nth-child(2)) > :last-child,
+  .topbar-actions,
+  .topbar-right,
+  #topbar-list-controls,
+  #topbar-form-controls {
+    width: 100%;
+    justify-content: flex-end !important;
+  }
+}
+
