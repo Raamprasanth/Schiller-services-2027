@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script>(function(){
+    const token = sessionStorage.getItem('schiller_token');
+    const role  = (sessionStorage.getItem('schiller_role')||'').toLowerCase();
+    if (!token || !['repair','repair_team','admin'].includes(role)) window.location.href = 'login.html';
+  })();</script>
+  <title>SchillerIndia - Repair Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg:#f4f7fa;
+      --surface:#ffffff;
+      --surface2:#eaf1f6;
+      --border:#d0e0ec;
+      --accent:#059669;
+      --accent2:#047857;
+      --accent-soft:rgba(5,150,105,0.08);
+      --green:#059669;
+      --amber:#d97706;
+      --red:#cc0000;
+      --blue:#0077cc;
+      --text:#1a2a3a;
+      --muted:#7a9ab0;
+      --soft:#4a6a8a;
+      --card:#ffffff;
+      --shadow:0 2px 12px rgba(0,60,120,0.07);
+      --shadow-md:0 4px 24px rgba(0,60,120,0.1);
+    }
+    body{font-family:Calibri,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:16px;font-weight:600;}
+
+    /* ── SIDEBAR ── */
+    .sidebar{width:230px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;box-shadow:2px 0 14px rgba(0,60,120,0.06);}
+    .sidebar-header{padding:18px 18px 14px;border-bottom:1px solid var(--border);background:linear-gradient(145deg,#052e16,#059669);}
+    .logo-wrap{display:flex;align-items:center;gap:10px;}
+    .logo-icon{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-weight:800;font-size:14px;color:#fff;border:1.5px solid rgba(255,255,255,0.25);}
+    .logo-text{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:800;color:#fff;line-height:1.2;}
+    .logo-text span{display:block;font-size:12px;color:rgba(255,255,255,0.72);font-family:Calibri,'Segoe UI',Arial,sans-serif;font-weight:700;}
+    .repair-badge{margin:8px 12px 0;padding:3px 10px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;display:inline-block;background:rgba(5,150,105,0.2);color:#6ee7b7;border:1px solid rgba(5,150,105,0.4);}
+    .sidebar-nav{flex:1;padding:10px 8px;}
+    .nav-sec{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;padding:11px 8px 5px;}
+    .nav-item{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:8px;color:var(--soft);font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:Calibri,'Segoe UI',Arial,sans-serif;text-decoration:none;}
+    .nav-item:hover{background:var(--surface2);color:var(--text);}
+    .nav-item.active{background:rgba(5,150,105,0.12);color:var(--accent);font-weight:700;border-left:3px solid var(--accent);padding-left:8px;}
+    .nav-item .ico{font-size:13px;width:18px;text-align:center;flex-shrink:0;}
+    .sidebar-footer{padding:12px 14px;border-top:1px solid var(--border);background:#f0fdf4;}
+    .user-row{display:flex;align-items:center;gap:9px;}
+    .user-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+    .user-nm{font-size:15px;font-weight:800;color:var(--text);}
+    .user-rl{font-size:12px;font-weight:700;color:var(--muted);}
+    .logout-btn{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:4px 9px;cursor:pointer;font-size:12px;font-weight:800;transition:all 0.2s;}
+    .logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+    /* ── MAIN ── */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .topbar{padding:16px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);}
+    .topbar-left h1{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:800;color:var(--text);}
+    .topbar-left p{font-size:14px;font-weight:700;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .msg-topbar-btn{position:relative;width:36px;height:36px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;color:var(--soft);}
+    .msg-topbar-btn:hover,.msg-topbar-btn.has-unread{border-color:var(--rep);color:var(--rep);background:var(--green-bg);}
+    .msg-topbar-count{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;background:#b91c1c;color:#fff;border-radius:20px;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--surface);}
+    .msg-topbar-count.show{display:flex;}
+    .content{flex:1;padding:26px;overflow-y:auto;background:var(--bg);}
+
+    /* ── WELCOME STRIP ── */
+    .welcome-strip{background:linear-gradient(135deg,#052e16,#059669);border-radius:14px;padding:22px 28px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(5,150,105,0.25);}
+    .welcome-text h2{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:26px;font-weight:800;color:#fff;margin-bottom:5px;}
+    .welcome-text p{font-size:17px;font-weight:700;color:rgba(255,255,255,0.82);}
+    .welcome-icon{font-size:42px;opacity:0.85;}
+
+    /* ── STAT CARDS ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:24px;align-items:stretch;}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:20px 20px;min-height:132px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;transition:transform 0.2s,box-shadow 0.2s;cursor:default;}
+    .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .stat-icon{order:1;width:62px;height:62px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;}
+    .stat-card>div:last-child{order:2;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+    .stat-val{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:42px;font-weight:900;line-height:0.95;}
+    .stat-lbl{font-size:17px;font-weight:900;color:var(--text);text-transform:uppercase;letter-spacing:0.01em;margin-top:9px;line-height:1.15;overflow-wrap:anywhere;}
+
+    /* ── SECTION GRID ── */
+    .section-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+    .section-grid.full{grid-template-columns:1fr;}
+
+    /* ── CARD COMPONENT ── */
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;box-shadow:var(--shadow);}
+    .panel-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+    .panel-title{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:17px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;}
+    .panel-body{padding:0;}
+    .panel-empty{padding:36px;text-align:center;color:var(--muted);font-size:13px;}
+    .panel-footer{padding:10px 18px;border-top:1px solid var(--border);background:var(--surface2);font-size:11.5px;color:var(--muted);}
+
+    /* ── TABLE ── */
+    .mini-table{width:100%;border-collapse:collapse;font-size:12px;}
+    .mini-table thead th{padding:9px 14px;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;text-align:left;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap;}
+    .mini-table tbody td{padding:10px 14px;border-bottom:1px solid rgba(0,60,120,0.05);color:var(--text);vertical-align:middle;}
+    .mini-table tbody tr:last-child td{border-bottom:none;}
+    .mini-table tbody tr:hover td{background:rgba(5,150,105,0.025);}
+
+    /* ── PILLS ── */
+    .pill{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:700;}
+    .pill::before{content:'';width:5px;height:5px;border-radius:50%;display:block;}
+    .chip{display:inline-flex;align-items:center;background:rgba(0,104,181,0.08);border:1px solid rgba(0,104,181,0.15);border-radius:5px;padding:2px 7px;font-size:10px;color:var(--accent);font-weight:600;}
+    .pill-pending{background:rgba(217,119,6,0.1);color:var(--amber);}.pill-pending::before{background:var(--amber);}
+    .pill-inprogress{background:rgba(0,119,204,0.1);color:var(--blue);}.pill-inprogress::before{background:var(--blue);}
+    .pill-completed{background:rgba(5,150,105,0.1);color:var(--green);}.pill-completed::before{background:var(--green);}
+    .pill-escalated{background:rgba(204,0,0,0.08);color:var(--red);}.pill-escalated::before{background:var(--red);}
+    .pill-open{background:rgba(5,150,105,0.1);color:var(--accent);}.pill-open::before{background:var(--accent);}
+
+    /* ── QUICK LINKS ── */
+    .quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px;}
+    .quick-link{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border-radius:10px;border:1.5px solid var(--border);text-decoration:none;color:var(--soft);font-size:12px;font-weight:600;transition:all 0.2s;background:var(--surface);text-align:center;}
+    .quick-link:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);transform:translateY(-2px);}
+    .quick-link .ql-icon{font-size:22px;}
+
+    /* ── ACTIVITY LIST ── */
+    .activity-list{padding:4px 0;}
+    .activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid rgba(0,60,120,0.05);}
+    .activity-item:last-child{border-bottom:none;}
+    .activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+    .activity-text{font-size:12.5px;color:var(--text);line-height:1.5;}
+    .activity-time{font-size:10.5px;color:var(--muted);margin-top:2px;}
+
+    /* ── BUTTONS ── */
+    .btn{padding:9px 16px;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;border:none;font-family:Calibri,'Segoe UI',Arial,sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;}
+    .btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:var(--accent2);}
+    .btn-outline{background:none;border:1.5px solid var(--border);color:var(--soft);}.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+    .btn-sm{padding:5px 12px;font-size:11.5px;}
+    .btn-xs{padding:3px 9px;font-size:13px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--soft);cursor:pointer;font-family:Calibri,'Segoe UI',Arial,sans-serif;transition:all 0.2s;font-weight:800;}
+    .btn-xs:hover{border-color:var(--accent);color:var(--accent);}
+
+    /* ── LOADING BAR ── */
+    @keyframes loadBar{0%{transform:scaleX(0);opacity:1;}80%{transform:scaleX(0.85);opacity:1;}100%{transform:scaleX(1);opacity:0;}}
+
+    /* ── SKELETON ── */
+    .skeleton{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+    @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+    /* ── TOAST ── */
+    .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:600;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;min-width:240px;animation:fadeUp 0.3s ease;box-shadow:var(--shadow-md);}
+    .toast.ok{border-color:rgba(5,150,105,0.4);}.toast.ok .tdot{background:var(--green);}
+    .toast.err{border-color:rgba(204,0,0,0.4);}.toast.err .tdot{background:var(--red);}
+    .tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+    @media(max-width:900px){.stats-grid{grid-template-columns:1fr 1fr;}.section-grid{grid-template-columns:1fr;}}
+    @media(max-width:600px){.sidebar{display:none;}.stats-grid{grid-template-columns:1fr;}.stat-card{min-height:104px;}}
+  
+
+    /* ── PERFORMANCE CARD ── */
+    .perf-card{background:linear-gradient(145deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow);}
+    .perf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .perf-title{font-size:15px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--soft);}
+    .perf-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;font-size:13px;font-weight:800;border:1px solid rgba(0,104,181,0.18);background:rgba(0,104,181,0.08);color:var(--accent);}
+    .perf-score{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:50px;font-weight:800;line-height:1;color:var(--text);}
+    .perf-label{font-size:17px;font-weight:800;color:var(--green);margin-top:4px;}
+    .perf-summary{font-size:16px;font-weight:700;color:var(--soft);line-height:1.55;margin-top:10px;}
+    .perf-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;}
+    .perf-metric{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;}
+    .pm-lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);margin-bottom:4px;}
+    .pm-val{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:800;color:var(--text);}
+    .bar-chart-row{display:flex;align-items:flex-end;gap:6px;height:64px;padding:0 2px;}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+    .bar{width:100%;border-radius:4px 4px 0 0;transition:height 0.8s ease;}
+    .bar-lbl{font-size:12px;font-weight:800;color:var(--muted);font-family:Calibri,'Segoe UI',Arial,sans-serif;}
+
+    /* ITEM AI */
+    .item-ai-card{background:var(--card);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;}
+    .item-ai-head{padding:15px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--surface2);}
+    .item-ai-title{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:18px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;}
+    .item-ai-sub{font-size:15px;font-weight:700;color:var(--muted);margin-top:2px;}
+    .item-ai-body{padding:18px;display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start;}
+    .item-upload{border:1.5px dashed var(--border);border-radius:10px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:12px;min-height:265px;}
+    .item-preview{height:170px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:15px;font-weight:700;text-align:center;padding:16px;}
+    .item-preview img{width:100%;height:100%;object-fit:contain;display:block;}
+    .item-file-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .item-file-row input{font-size:11.5px;color:var(--soft);max-width:100%;}
+    .item-note{font-size:14px;font-weight:700;color:var(--muted);line-height:1.5;}
+    .item-result{border:1px solid var(--border);border-radius:10px;background:var(--surface);min-height:265px;padding:16px;}
+    .item-placeholder{height:100%;min-height:230px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:16px;font-weight:700;line-height:1.6;}
+    .item-status{font-size:15px;font-weight:700;color:var(--soft);margin-bottom:10px;}
+    .item-name{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:24px;font-weight:800;color:var(--text);margin-bottom:4px;}
+    .item-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+    .item-tag{display:inline-flex;align-items:center;border:1px solid rgba(5,150,105,0.18);background:rgba(5,150,105,0.08);color:var(--accent);border-radius:999px;padding:3px 9px;font-size:13px;font-weight:800;}
+    .item-section{margin-top:13px;}
+    .item-section h4{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:6px;}
+    .item-section p,.item-section li{font-size:15px;font-weight:700;color:var(--soft);line-height:1.55;}
+    .item-list{padding-left:17px;}
+    .item-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;}
+    .item-link{border:1px solid var(--border);border-radius:8px;padding:9px 10px;text-decoration:none;color:var(--accent);background:var(--surface2);font-size:15px;font-weight:800;line-height:1.35;transition:all 0.2s;}
+    .item-link:hover{border-color:var(--accent);background:var(--accent-soft);}
+    .item-error{border:1px solid rgba(204,0,0,0.25);background:rgba(204,0,0,0.06);color:var(--red);border-radius:9px;padding:12px;font-size:12.5px;line-height:1.5;}
+    @media(max-width:900px){.item-ai-body{grid-template-columns:1fr;}.item-links{grid-template-columns:1fr;}}
+
+    /* -- MESSAGING -- */
+    .msg-workspace{display:none;grid-template-columns:310px 1fr;gap:16px;min-height:calc(100vh - 130px);}
+    .msg-workspace.open{display:grid;}
+    .msg-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+    .msg-head{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .msg-title{font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:16px;font-weight:800;color:var(--text);}
+    .msg-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+    .msg-compose{padding:14px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--border);}
+    .msg-field{display:flex;flex-direction:column;gap:5px;}
+    .msg-field label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);}
+    .msg-field select,.msg-field textarea{width:100%;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:14px;padding:9px 11px;outline:none;}
+    .msg-field textarea{min-height:72px;resize:vertical;}
+    .msg-thread-list{max-height:calc(100vh - 465px);overflow:auto;}
+    .msg-thread{padding:12px 14px;border-bottom:1px solid rgba(0,60,120,0.06);cursor:pointer;transition:background 0.15s;}
+    .msg-thread:hover,.msg-thread.active{background:rgba(5,150,105,0.08);color:var(--accent);}
+    .msg-thread-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .msg-thread-name{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .msg-thread-time{font-size:12px;color:var(--muted);white-space:nowrap;}
+    .msg-thread-last{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px;}
+    .msg-unread{background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;font-size:10px;font-weight:800;margin-left:6px;}
+    .msg-chat{display:flex;flex-direction:column;min-height:calc(100vh - 130px);}
+    .msg-chat-body{flex:1;padding:18px;overflow-y:auto;overscroll-behavior-y:contain;background:linear-gradient(180deg,#f7fbff,#eef6fb);}
+    .msg-empty{text-align:center;color:var(--muted);font-size:14px;padding:40px 16px;}
+    .msg-bubble-row{display:flex;margin-bottom:10px;}
+    .msg-bubble-row.mine{justify-content:flex-end;}
+    .msg-bubble{max-width:70%;padding:9px 12px;border-radius:14px;background:#fff;border:1px solid var(--border);box-shadow:0 1px 5px rgba(0,60,120,0.06);}
+    .msg-bubble-row.mine .msg-bubble{background:#d1fae5;border-color:#a7f3d0;}
+    .msg-meta{font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:700;}
+    .msg-text{font-size:14px;color:var(--text);line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+    .msg-chat-foot{display:flex;gap:10px;padding:12px;border-top:1px solid var(--border);background:var(--surface);}
+    .msg-chat-foot textarea{flex:1;min-height:42px;max-height:110px;resize:vertical;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-family:Calibri,'Segoe UI',Arial,sans-serif;font-size:14px;outline:none;}
+    .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;line-height:1;}
+    </style>
+  <link rel="stylesheet" href="global-typography.css">
+  <link rel="stylesheet" href="employee-theme.css">
+  <style>
+    .stats-grid{
+      grid-auto-flow:row !important;
+      grid-template-columns:repeat(4,minmax(190px,1fr)) !important;
+      grid-auto-columns:initial !important;
+      gap:22px !important;
+      overflow:visible !important;
+      padding-bottom:0 !important;
+      margin-bottom:28px !important;
+    }
+    .stat-card{
+      min-height:158px !important;
+      padding:26px 24px !important;
+      border-radius:14px !important;
+      gap:18px !important;
+      align-items:center !important;
+      font-family:Calibri,'Segoe UI',Arial,sans-serif !important;
+    }
+    .stat-icon{
+      order:1 !important;
+      width:72px !important;
+      height:72px !important;
+      border-radius:16px !important;
+      font-size:34px !important;
+      opacity:1 !important;
+      margin-top:0 !important;
+      flex:0 0 72px !important;
+    }
+    .stat-card>div:last-child{
+      order:2 !important;
+      flex:1 1 auto !important;
+      min-width:0 !important;
+    }
+    .stat-val{
+      font-family:Calibri,'Segoe UI',Arial,sans-serif !important;
+      font-size:48px !important;
+      font-weight:900 !important;
+      line-height:1 !important;
+      margin:0 !important;
+      text-align:left !important;
+    }
+    .stat-lbl{
+      font-family:Calibri,'Segoe UI',Arial,sans-serif !important;
+      font-size:18px !important;
+      font-weight:900 !important;
+      line-height:1.2 !important;
+      margin-top:12px !important;
+      margin-bottom:0 !important;
+      color:var(--text) !important;
+      white-space:normal !important;
+      overflow:visible !important;
+      text-overflow:clip !important;
+      text-transform:uppercase !important;
+      letter-spacing:0 !important;
+    }
+    @media(max-width:1100px){
+      .stats-grid{grid-template-columns:repeat(2,minmax(190px,1fr)) !important;}
+    }
+    @media(max-width:600px){
+      .stats-grid{grid-template-columns:1fr !important;}
+      .stat-card{min-height:140px !important;padding:22px !important;}
+    }
+  </style>
+  <script src="employee-theme.js"></script>
+  <link rel="stylesheet" href="topbar-alignment.css">
+  <link rel="stylesheet" href="brand-logo.css">
+  <link rel="stylesheet" href="dashboard-topbar-actions.css">
+  <script src="dashboard-topbar-actions.js" defer></script>
+  <script src="brand-logo.js" defer></script>
+</head>
+<body>
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-wrap">
+      <img class="brand-logo-img" src="logo.png" alt="SCHILLER">
+    </div>
+  </div>
+  <div style="padding:7px 12px 0;"><span class="repair-badge">&#128295; Repair Team</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-sec">Main</div>
+    <a class="nav-item active" href="Repair-dashboard.html"><span class="ico">&#128202;</span> Dashboard</a>
+    <a class="nav-item" id="rep-msg-nav" href="#messages" onclick="showRepMessages(event)"><span class="ico">&#128172;</span> Messaging <span class="nav-badge" id="rep-msg-badge" style="display:none;">0</span></a>
+    <div class="nav-sec">Repair Work</div>
+    <a class="nav-item" href="Rtfrn.html"><span class="ico">&#128221;</span> PFRN</a>
+    <a class="nav-item" href="Rtob.html"><span class="ico">&#128230;</span> OB</a>
+    <a class="nav-item" href="Rtur.html"><span class="ico">&#128736;&#65039;</span> UR</a>
+    <a class="nav-item" href="Rtcrl.html"><span class="ico">&#9989;</span> Repaired List</a>
+    <a class="nav-item" href="Rtrr.html"><span class="ico">&#128260;</span> Re-repair List</a>
+    <a class="nav-item" href="Rtcrr.html"><span class="ico">&#9989;</span> Closed Re-repair List</a>
+    <div class="nav-sec">Other Activities</div>
+    <a class="nav-item" href="Rtoa.html"><span class="ico">&#128203;</span> Other Activity</a>
+    <a class="nav-item" href="Rtcoa.html"><span class="ico">&#9989;</span> Closed Activity</a>
+    <a class="nav-item" href="Rtcomr.html"><span class="ico">&#128296;</span> Components Request</a>
+    <a class="nav-item" href="Rtccr.html"><span class="ico">&#128194;</span> Closed Request</a>
+     </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="user-avatar">R</div>
+      <div>
+        <div class="user-nm" id="user-name">Repair User</div>
+        <div class="user-rl">Repair Team</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">&#8617;&#65039;</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Repair Dashboard</h1>
+      <p id="topbar-date"></p>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:11px;color:var(--muted);" id="last-sync">-</span>
+      <button class="msg-topbar-btn" id="rep-msg-topbar-btn" onclick="showRepMessages()" title="Messages" aria-label="Messages">&#128172;<span class="msg-topbar-count" id="rep-msg-topbar-badge">0</span></button>
+      <button class="btn btn-outline btn-sm" onclick="loadDashboard()">&#10227; Refresh</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- MESSAGING WORKSPACE -->
+    <div class="msg-workspace" id="rep-msg-workspace">
+      <div class="msg-panel">
+        <div class="msg-head">
+          <div>
+            <div class="msg-title">Service Messages</div>
+            <div class="msg-sub">Select a team, division and recipient</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="loadRepMessageThreads()">Refresh</button>
+        </div>
+        <div class="msg-compose">
+          <div class="msg-field">
+            <label>Team</label>
+            <select id="rep-msg-team" onchange="onRepMsgTeamChange()">
+              <option value="">Select team</option>
+              <option value="service_team">Service Team</option>
+              <option value="repair_team">Repair Team</option>
+              <option value="product_team">Product Team</option>
+              <option value="service_coordinator">Service Coordinator</option>
+            </select>
+          </div>
+          <div class="msg-field">
+            <label>Division</label>
+            <select id="rep-msg-division" onchange="onRepMsgDivisionChange()" disabled>
+              <option value="">All divisions</option>
+            </select>
+          </div>
+          <div class="msg-field">
+            <label>Recipient</label>
+            <select id="rep-msg-recipient">
+              <option value="">Select recipient</option>
+            </select>
+          </div>
+          <div class="msg-field">
+            <label>Message</label>
+            <textarea id="rep-msg-new" placeholder="Type message..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="sendRepNewMessage()">Send Message</button>
+        </div>
+        <div class="msg-thread-list" id="rep-msg-thread-list">
+          <div class="msg-empty">No conversations loaded.</div>
+        </div>
+      </div>
+      <div class="msg-panel msg-chat">
+        <div class="msg-head">
+          <div>
+            <div class="msg-title" id="rep-chat-title">Select a conversation</div>
+            <div class="msg-sub" id="rep-chat-sub">Messages with service team</div>
+          </div>
+          <button class="btn-xs" id="rep-msg-clear-btn" onclick="clearRepChat()" style="display:none; color: var(--red); border-color: rgba(204,0,0,0.3); background: rgba(204,0,0,0.08);">Clear Chat</button>
+        </div>
+        <div class="msg-chat-body" id="rep-chat-body">
+          <div class="msg-empty">Choose a recipient thread or send a new message.</div>
+        </div>
+        <div class="msg-chat-foot">
+          <textarea id="rep-msg-reply" placeholder="Type reply..." disabled></textarea>
+          <button class="btn btn-primary" id="rep-msg-reply-btn" onclick="sendRepReply()" disabled>Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WELCOME STRIP -->
+    <div class="welcome-strip">
+      <div class="welcome-text">
+        <h2>Welcome back, <span id="welcome-name">Repair Team</span>!</h2>
+        <p>Here's your repair work overview for today.</p>
+      </div>
+      <div class="welcome-icon">&#128295;</div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(217,119,6,0.1);">📝</div>
+        <div>
+          <div class="stat-val" style="color:var(--amber);" id="s-pfrn">-</div>
+          <div class="stat-lbl">PRN</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(0,119,204,0.1);">&#128230;</div>
+        <div>
+          <div class="stat-val" style="color:var(--blue);" id="s-ob">-</div>
+          <div class="stat-lbl">OB</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(109,40,217,0.1);">&#128736;&#65039;</div>
+        <div>
+          <div class="stat-val" style="color:var(--accent);" id="s-ur">-</div>
+          <div class="stat-lbl">UR</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(5,150,105,0.1);">&#9989;</div>
+        <div>
+          <div class="stat-val" style="color:var(--green);" id="s-closed">-</div>
+          <div class="stat-lbl">Closed Repairs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE ROW -->
+    <div style="margin-bottom:20px;">
+      <div class="perf-card">
+        <div class="perf-head">
+          <div class="perf-title">&#128200; Performance Index</div>
+          <div class="perf-badge">&#11088; Auto-Calculated</div>
+        </div>
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+          <!-- Score info -->
+          <div style="flex:1;min-width:200px;">
+            <div class="perf-score" id="perf-score">0%</div>
+            <div class="perf-label" id="perf-label">Calculating...</div>
+          </div>
+          <!-- Mini bar chart -->
+          <div style="flex:2;min-width:300px;">
+            <div class="bar-chart-row" id="perf-chart">
+              <div class="bar-col"><div class="bar sbf-blue" style="height:30%;background:linear-gradient(to top,var(--accent),#0ea5e9);"></div><div class="bar-lbl">PFRN</div></div>
+              <div class="bar-col"><div class="bar" style="height:40%;background:linear-gradient(to top,var(--blue),#3b82f6);"></div><div class="bar-lbl">OB</div></div>
+              <div class="bar-col"><div class="bar" style="height:50%;background:linear-gradient(to top,var(--amber),#d97706);"></div><div class="bar-lbl">UR</div></div>
+              <div class="bar-col"><div class="bar" style="height:85%;background:linear-gradient(to top,var(--green),#059669);"></div><div class="bar-lbl">Closed</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="perf-summary" id="perf-summary">Your performance index is being calculated based on your repair records.</div>
+        <div class="perf-metrics">
+          <div class="perf-metric"><div class="pm-lbl">PFRN</div><div class="pm-val" id="pm-pfrn">&#8212;</div></div>
+          <div class="perf-metric"><div class="pm-lbl">OB</div><div class="pm-val" id="pm-ob">&#8212;</div></div>
+          <div class="perf-metric"><div class="pm-lbl">UR</div><div class="pm-val" id="pm-ur">&#8212;</div></div>
+          <div class="perf-metric"><div class="pm-lbl">Closed</div><div class="pm-val" id="pm-closed">&#8212;</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ITEM AI IDENTIFIER -->
+    <div class="item-ai-card">
+      <div class="item-ai-head">
+        <div>
+          <div class="item-ai-title">&#129302; AI Item Identifier</div>
+          <div class="item-ai-sub">Upload a part, board, cable, sensor, or spare image to get quick repair information.</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="item-analyze-btn" onclick="analyzeItemImage()" disabled>&#128269; Analyze Image</button>
+      </div>
+      <div class="item-ai-body">
+        <div class="item-upload">
+          <div class="item-preview" id="item-preview">Choose an image to preview it here.</div>
+          <div class="item-file-row">
+            <input type="file" id="item-image-input" accept="image/*" onchange="handleItemImageSelect(event)">
+            <button class="btn btn-outline btn-sm" onclick="clearItemImage()">Clear</button>
+          </div>
+          <div class="item-note">Best results: clear photo, good light, visible labels or part numbers, and one item per image. Max image size: 8 MB.</div>
+        </div>
+        <div class="item-result" id="item-result">
+          <div class="item-placeholder">AI results will appear here with item details, likely use, specs to verify, handling tips, and reference search links.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+const API_BASE   = '/api';
+const LOGGED_USER = JSON.parse(sessionStorage.getItem('schiller_user') || '{}');
+const USER_NAME   = LOGGED_USER.name || 'Repair User';
+
+// ── Init UI ───────────────────────────────────────────────
+(document.getElementById('user-name')||{}).textContent = USER_NAME;
+(document.getElementById('user-avatar')||{}).textContent = USER_NAME.charAt(0).toUpperCase();
+(document.getElementById('welcome-name')||{}).textContent = USER_NAME.split(' ')[0];
+(document.getElementById('topbar-date')||{}).textContent =
+  new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+function getToken()    { return sessionStorage.getItem('schiller_token') || ''; }
+function authHeaders() { return { 'Content-Type':'application/json', Authorization: 'Bearer ' + getToken() }; }
+async function syncRepairSessionUser(){
+  try{
+    const res=await fetch('/api/auth/me',{headers:authHeaders()});
+    if(!res.ok) return;
+    const data=await res.json().catch(()=>null);
+    const user=data&&(data.user||data.data||data);
+    if(!user||!user.name) return;
+    (document.getElementById('user-name')||{}).textContent =user.name;
+    (document.getElementById('user-avatar')||{}).textContent =String(user.name||'R').charAt(0).toUpperCase();
+    (document.getElementById('welcome-name')||{}).textContent =String(user.name||'Repair').split(' ')[0];
+  }catch(_){}
+}
+
+syncRepairSessionUser();
+
+function logout() { sessionStorage.clear(); localStorage.clear(); window.location.href = 'login.html'; }
+
+function showToast(msg, type = 'ok') {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = '<span class="tdot"></span>' + msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+function fmt(d) {
+  if (!d) return '-';
+  const p = String(d).split('-');
+  if (p.length < 3) return d;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return p[2] + ' ' + months[parseInt(p[1]) - 1] + ' ' + p[0];
+}
+
+function pillHtml(status) {
+  if (!status) return '-';
+  const s = status.toLowerCase().replace(/\s+/g,'_');
+  const map = {
+    pending:     'pill-pending',
+    in_progress: 'pill-inprogress',
+    inprogress:  'pill-inprogress',
+    completed:   'pill-completed',
+    escalated:   'pill-escalated',
+    open:        'pill-open',
+    under_repair:'pill-inprogress',
+    closed:      'pill-completed',
+  };
+  const cls = map[s] || 'pill-open';
+  const lbl = status.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+  return `<span class="pill ${cls}">${lbl}</span>`;
+}
+
+function emptyRow(cols, msg = 'No records found') {
+  return `<tr><td colspan="${cols}" style="text-align:center;padding:28px;color:var(--muted);font-size:12.5px;">${msg}</td></tr>`;
+}
+
+// ── LOAD ALL DATA ─────────────────────────────────────────
+async function loadDashboard() {
+  (document.getElementById('last-sync')||{}).textContent = 'Syncing...';
+
+  await Promise.allSettled([
+    loadPFRN(),
+    loadOB(),
+    loadUR(),
+    loadClosed(),
+    loadCallRegister(),
+    loadClosedCalls(),
+  ]);
+
+  (document.getElementById('last-sync')||{}).textContent =
+    'Synced: ' + new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+// ── PFRN ─────────────────────────────────────────────────
+function dataList(payload) {
+  const list = payload?.data || payload?.records || payload;
+  return Array.isArray(list) ? list : [];
+}
+
+function statPayload(payload) {
+  return payload?.data || payload || {};
+}
+
+async function fetchJson(path) {
+  const res = await fetch(API_BASE + path, { headers: authHeaders() });
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(payload.message || ('HTTP ' + res.status));
+  return payload;
+}
+
+async function setStat(id, key, value) {
+  STATS[key] = Number(value) || 0;
+  (document.getElementById(id)||{}).textContent = STATS[key];
+}
+
+async function loadPFRN() {
+  try {
+    const data = await fetchJson('/rtfrn/employee');
+    setStat('s-pfrn', 'pfrn', dataList(data).length);
+  } catch(e) {
+    (document.getElementById('s-pfrn')||{}).textContent = '-';
+  }
+}
+
+async function loadOB() {
+  try {
+    const stats = statPayload(await fetchJson('/rtob/stats'));
+    setStat('s-ob', 'ob', stats.total);
+  } catch(e) {
+    try {
+      const data = await fetchJson('/rtob/employee');
+      setStat('s-ob', 'ob', dataList(data).length);
+    } catch(_) {
+      (document.getElementById('s-ob')||{}).textContent = '-';
+    }
+  }
+}
+
+async function loadUR() {
+  try {
+    const stats = statPayload(await fetchJson('/rtur/stats'));
+    setStat('s-ur', 'ur', stats.total);
+  } catch(e) {
+    try {
+      const data = await fetchJson('/rtur');
+      setStat('s-ur', 'ur', dataList(data).length);
+    } catch(_) {
+      (document.getElementById('s-ur')||{}).textContent = '-';
+    }
+  }
+}
+
+async function loadClosed() {
+  try {
+    const stats = statPayload(await fetchJson('/rtcrl/stats'));
+    setStat('s-closed', 'closed', stats.total);
+  } catch(e) {
+    try {
+      const data = await fetchJson('/rtcrl');
+      setStat('s-closed', 'closed', dataList(data).length);
+    } catch(_) {
+      (document.getElementById('s-closed')||{}).textContent = '-';
+    }
+  }
+}
+
+let STATS = { pfrn: 0, ob: 0, ur: 0, closed: 0 };
+
+async function loadDashboard() {
+  (document.getElementById('last-sync')||{}).textContent = 'Syncing...';
+  await Promise.allSettled([
+    loadPFRN(),
+    loadOB(),
+    loadUR(),
+    loadClosed(),
+    loadRepMessageThreads()
+  ]);
+  updatePerformance();
+  (document.getElementById('last-sync')||{}).textContent =
+    'Synced: ' + new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+
+function updatePerformance(){
+  const total = STATS.pfrn + STATS.ob + STATS.ur + STATS.closed;
+  const closed = STATS.closed;
+  const rate = total > 0 ? Math.round((closed/total)*100) : 0;
+  const label = rate>=80?'Excellent &#11088;':rate>=60?'Good &#128077;':rate>=40?'Average &#9888;':'Needs Improvement &#9889;';
+  const summary = rate>=80?'Outstanding performance! You are efficiently managing and closing assigned repair records well above target.'
+    :rate>=60?'Good progress. Keep focusing on closing your pending FRNs and OBs promptly.'
+    :'Keep working on your open items. Consistent follow-up on under-repair items will improve your score.';
+  (document.getElementById('perf-score')||{}).textContent = rate+'%';
+  (document.getElementById('perf-label')||{}).innerHTML = label;
+  (document.getElementById('perf-summary')||{}).textContent = summary;
+  (document.getElementById('pm-pfrn')||{}).textContent = STATS.pfrn;
+  (document.getElementById('pm-ob')||{}).textContent = STATS.ob;
+  (document.getElementById('pm-ur')||{}).textContent = STATS.ur;
+  (document.getElementById('pm-closed')||{}).textContent = STATS.closed;
+  updateChartBars();
+}
+
+function updateChartBars(){
+  const maxVal = Math.max(STATS.pfrn, STATS.ob, STATS.ur, STATS.closed, 1);
+  const vals = [STATS.pfrn, STATS.ob, STATS.ur, STATS.closed];
+  const colors = [
+    'linear-gradient(to top,var(--accent),#0ea5e9)',
+    'linear-gradient(to top,var(--blue),#3b82f6)',
+    'linear-gradient(to top,var(--amber),#d97706)',
+    'linear-gradient(to top,var(--green),#059669)',
+  ];
+  const labels = ['PFRN','OB','UR','Closed'];
+  const chartEl = document.getElementById('perf-chart');
+  if(chartEl) {
+    chartEl.innerHTML = vals.map((v,i)=>`
+      <div class="bar-col">
+        <div class="bar" style="height:${Math.max(8,Math.round((v/maxVal)*100))}%;background:${colors[i]};opacity:0.75;"></div>
+        <div class="bar-lbl">${labels[i]}</div>
+      </div>`).join('');
+  }
+}
+
+// ── Boot ─────────────────────────────────────────────────
+let selectedItemImage = null;
+
+function escapeHtml(value){
+  return String(value || '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#039;'
+  }[ch]));
+}
+
+function renderItemList(items){
+  const arr = Array.isArray(items) ? items.filter(Boolean) : [];
+  if(!arr.length) return '<p>-</p>';
+  return '<ul class="item-list">' + arr.map(item => `<li>${escapeHtml(item)}</li>`).join('') + '</ul>';
+}
+
+function renderItemLinks(links){
+  const arr = Array.isArray(links) ? links.filter(link => link && link.url) : [];
+  if(!arr.length) return '<p>No links generated.</p>';
+  return '<div class="item-links">' + arr.map(link => `
+    <a class="item-link" href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title || link.url)}</a>
+  `).join('') + '</div>';
+}
+
+function setItemResultLoading(){
+  const result = document.getElementById('item-result');
+  if(result) result.innerHTML = '<div class="item-placeholder">Analyzing image with AI... this may take a few seconds.</div>';
+}
+
+function setItemResultError(message){
+  const result = document.getElementById('item-result');
+  if(result) result.innerHTML = `<div class="item-error">${escapeHtml(message || 'Unable to analyze this image.')}</div>`;
+}
+
+function handleItemImageSelect(event){
+  const file = event.target.files && event.target.files[0];
+  const preview = document.getElementById('item-preview');
+  const btn = document.getElementById('item-analyze-btn');
+  selectedItemImage = null;
+
+  if(!file){
+    clearItemImage();
+    return;
+  }
+  if(!file.type || !file.type.startsWith('image/')){
+    showToast('Please select a valid image file.', 'err');
+    clearItemImage();
+    return;
+  }
+  if(file.size > 8 * 1024 * 1024){
+    showToast('Image must be 8 MB or smaller.', 'err');
+    clearItemImage();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    selectedItemImage = {
+      mimeType: file.type,
+      data: reader.result
+    };
+    if(preview) preview.innerHTML = `<img src="${reader.result}" alt="Selected item preview">`;
+    if(btn) btn.disabled = false;
+  };
+  reader.onerror = () => {
+    showToast('Could not read image file.', 'err');
+    clearItemImage();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearItemImage(){
+  selectedItemImage = null;
+  const input = document.getElementById('item-image-input');
+  const preview = document.getElementById('item-preview');
+  const btn = document.getElementById('item-analyze-btn');
+  const result = document.getElementById('item-result');
+  if(input) input.value = '';
+  if(preview) preview.textContent = 'Choose an image to preview it here.';
+  if(btn) btn.disabled = true;
+  if(result) result.innerHTML = '<div class="item-placeholder">AI results will appear here with item details, likely use, specs to verify, handling tips, and reference search links.</div>';
+}
+
+function renderItemAnalysis(analysis){
+  const result = document.getElementById('item-result');
+  if(!result) return;
+  const confidence = analysis.confidence || 'unknown';
+  result.innerHTML = `
+    <div class="item-name">${escapeHtml(analysis.itemName || 'Unknown item')}</div>
+    <div class="item-meta">
+      <span class="item-tag">${escapeHtml(analysis.category || 'Item')}</span>
+      <span class="item-tag">Confidence: ${escapeHtml(confidence)}</span>
+    </div>
+    <div class="item-section">
+      <h4>Description</h4>
+      <p>${escapeHtml(analysis.description || '-')}</p>
+    </div>
+    <div class="item-section">
+      <h4>Likely Use</h4>
+      <p>${escapeHtml(analysis.likelyUse || '-')}</p>
+    </div>
+    <div class="item-section">
+      <h4>Visible Identifiers</h4>
+      ${renderItemList(analysis.visibleIdentifiers)}
+    </div>
+    <div class="item-section">
+      <h4>Specs To Check</h4>
+      ${renderItemList(analysis.keySpecsToCheck)}
+    </div>
+    <div class="item-section">
+      <h4>Handling Tips</h4>
+      ${renderItemList(analysis.handlingTips)}
+    </div>
+    <div class="item-section">
+      <h4>Reference Links</h4>
+      ${renderItemLinks(analysis.referenceLinks)}
+    </div>
+  `;
+}
+
+async function analyzeItemImage(){
+  if(!selectedItemImage){
+    showToast('Please upload an item image first.', 'err');
+    return;
+  }
+  const btn = document.getElementById('item-analyze-btn');
+  if(btn) {
+    btn.disabled = true;
+    btn.innerHTML = '&#8987; Analyzing...';
+  }
+  setItemResultLoading();
+
+  try{
+    const res = await fetch(API_BASE + '/defect-analysis/identify-item', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(selectedItemImage)
+    });
+    const payload = await res.json().catch(() => ({}));
+    if(!res.ok || !payload.success){
+      throw new Error(payload.message || 'Item identification failed.');
+    }
+    renderItemAnalysis(payload.analysis || {});
+    showToast('AI item information generated.', 'ok');
+  }catch(err){
+    setItemResultError(err.message || 'AI item identification failed.');
+    showToast('AI item identification failed.', 'err');
+  }finally{
+    if(btn) {
+      btn.disabled = false;
+      btn.innerHTML = '&#128269; Analyze Image';
+    }
+  }
+}
+
+// ── REPAIR MESSAGING SYSTEM ──────────────────────────────
+let repMsgThreads = [];
+let repMsgActiveId = '';
+let repMsgUnreadLast = 0;
+
+function initRepMessages(){
+  loadRepMessageDivisions();
+  loadRepMessageRecipients();
+  loadRepMessageThreads();
+  setInterval(loadRepMessageThreads, 30000);
+  if (location.hash === '#messages') showRepMessages();
+  window.addEventListener('hashchange', () => {
+    if (location.hash === '#messages') showRepMessages();
+    else showRepDashboard();
+  });
+}
+
+function showRepMessages(event){
+  if (event) event.preventDefault();
+  location.hash = 'messages';
+  const workspace = document.getElementById('rep-msg-workspace');
+  document.querySelectorAll('.content > *').forEach(el => {
+    if (el !== workspace) el.style.display = 'none';
+  });
+  if (workspace) workspace.classList.add('open');
+  document.querySelectorAll('.sidebar .nav-item').forEach(a => a.classList.remove('active'));
+  (document.getElementById('rep-msg-nav')||{}).classList.add('active');
+  loadRepMessageThreads();
+}
+
+function showRepDashboard(){
+  const workspace = document.getElementById('rep-msg-workspace');
+  if (workspace) workspace.classList.remove('open');
+  document.querySelectorAll('.content > *').forEach(el => {
+    if (el !== workspace) el.style.display = '';
+  });
+  document.querySelectorAll('.sidebar .nav-item').forEach(a => a.classList.remove('active'));
+  const dash = document.querySelector('.sidebar .nav-item[href="Repair-dashboard.html"]');
+  if (dash) dash.classList.add('active');
+}
+
+async function loadRepMessageDivisions(){
+  const sel = document.getElementById('rep-msg-division');
+  if (!sel) return;
+  try{
+    const res = await fetch('/api/divisions', { headers: authHeaders() });
+    const data = await res.json().catch(()=>[]);
+    const list = Array.isArray(data) ? data : (data.data || []);
+    const names = [...new Set(list.map(d => d.name || d.division || d.divisionName || d).filter(Boolean).map(String))].sort();
+    sel.innerHTML = '<option value="">All divisions</option>' + names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+  }catch(_){}
+}
+
+function onRepMsgTeamChange() {
+  const team = document.getElementById('rep-msg-team')?.value || '';
+  const divSel = document.getElementById('rep-msg-division');
+  if (divSel) {
+    if (team === 'service_team') {
+      divSel.disabled = false;
+    } else {
+      divSel.disabled = true;
+      divSel.value = '';
+    }
+  }
+  onRepMsgDivisionChange();
+}
+
+function onRepMsgDivisionChange() {
+  loadRepMessageRecipients();
+  loadRepMessageThreads();
+}
+
+async function loadRepMessageRecipients(){
+  const team = document.getElementById('rep-msg-team')?.value || '';
+  const division = document.getElementById('rep-msg-division')?.value || '';
+  const empSel = document.getElementById('rep-msg-recipient');
+  if (!empSel) return;
+  
+  if (!team) {
+    empSel.innerHTML = '<option value="">Select team first</option>';
+    return;
+  }
+  
+  empSel.innerHTML = '<option value="">Loading...</option>';
+  try{
+    const url = `/api/service-messages/recipients?team=${encodeURIComponent(team)}&division=${encodeURIComponent(division)}`;
+    const res = await fetch(url, { headers: authHeaders() });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const list = json.data || [];
+    
+    let html = '<option value="">Select recipient</option>';
+    if (list.length > 0) {
+      html += '<option value="ALL">📢 Send to all in list</option>';
+    }
+    html += list.map(emp => {
+      const value = `${emp.source}:${emp.id}`;
+      const role = String(emp.role || '').replace(/_/g, ' ');
+      const label = `${emp.name}${emp.division ? ' - ' + emp.division : ''}${role ? ' (' + role + ')' : ''}`;
+      return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+    }).join('');
+    empSel.innerHTML = html;
+  }catch(e){
+    empSel.innerHTML = '<option value="">Could not load recipients</option>';
+    showToast('Recipient load failed: ' + e.message, 'err');
+  }
+}
+
+async function loadRepMessageThreads(){
+  try{
+    const params = new URLSearchParams();
+    const division = document.getElementById('rep-msg-division')?.value || '';
+    if (division) params.append('division', division);
+    const res = await fetch('/api/service-messages/threads' + (params.toString() ? '?' + params.toString() : ''), { headers: authHeaders() });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    repMsgThreads = json.data || [];
+    renderRepMessageThreads();
+    updateRepMessageNotification();
+  }catch(e){
+    const list = document.getElementById('rep-msg-thread-list');
+    if (list) list.innerHTML = '<div class="msg-empty">Could not load conversations.</div>';
+  }
+}
+
+function updateRepMessageNotification(){
+  const count = repMsgThreads.reduce((sum, t) => sum + Number(t.unreadCount || 0), 0);
+  const badge = document.getElementById('rep-msg-badge');
+  if (badge) {
+    badge.textContent = count;
+    badge.style.display = count ? 'inline-flex' : 'none';
+  }
+  const topbarBadge = document.getElementById('rep-msg-topbar-badge');
+  const topbarBtn = document.getElementById('rep-msg-topbar-btn');
+  if (topbarBadge) {
+    topbarBadge.textContent = count;
+    topbarBadge.classList.toggle('show', !!count);
+  }
+  if (topbarBtn) topbarBtn.classList.toggle('has-unread', !!count);
+  if (count > repMsgUnreadLast && location.hash !== '#messages') {
+    showToast('New service message received.', 'info');
+  }
+  repMsgUnreadLast = count;
+}
+
+function renderRepMessageThreads(){
+  const list = document.getElementById('rep-msg-thread-list');
+  if (!list) return;
+  if (!repMsgThreads.length) {
+    list.innerHTML = '<div class="msg-empty">No conversations yet.</div>';
+    return;
+  }
+  list.innerHTML = repMsgThreads.map(t => `
+    <div class="msg-thread ${t._id === repMsgActiveId ? 'active' : ''}" onclick="openRepThread('${t._id}')">
+      <div class="msg-thread-top">
+        <div class="msg-thread-name">${escapeHtml(t.peerName || t.coordinatorName || 'Service Coordinator')}${t.unreadCount ? `<span class="msg-unread">${t.unreadCount}</span>` : ''}</div>
+        <div class="msg-thread-time">${fmtRepMsgTime(t.lastMessageAt)}</div>
+      </div>
+      <div class="msg-thread-last">${escapeHtml(t.lastMessage || '')}</div>
+    </div>
+  `).join('');
+}
+
+async function openRepThread(id){
+  repMsgActiveId = id;
+  renderRepMessageThreads();
+  try{
+    const res = await fetch('/api/service-messages/threads/' + id, { headers: authHeaders() });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    renderRepChat(json.data);
+    loadRepMessageThreads();
+  }catch(e){ showToast('Conversation load failed: ' + e.message, 'err'); }
+}
+
+function renderRepChat(thread){
+  const userStr = sessionStorage.getItem('schiller_user');
+  const u = userStr ? JSON.parse(userStr) : {};
+  const currentId = String(u._id || u.id || '');
+  
+  (document.getElementById('rep-chat-title')||{}).textContent = String(thread.coordinatorId) === currentId ? (thread.employeeName || 'Recipient') : (thread.coordinatorName || 'Service Coordinator');
+  (document.getElementById('rep-chat-sub')||{}).textContent = thread.division || 'Service coordination';
+  const body = document.getElementById('rep-chat-body');
+  body.innerHTML = (thread.messages || []).map(m => {
+    const mine = String(m.senderId) === currentId;
+    return `<div class="msg-bubble-row ${mine ? 'mine' : ''}">
+      <div class="msg-bubble">
+        <div class="msg-meta">${escapeHtml(m.senderName || '')} - ${fmtRepMsgTime(m.createdAt || m.timestamp)}</div>
+        <div class="msg-text">${escapeHtml(m.text || '')}</div>
+      </div>
+    </div>`;
+  }).join('') || '<div class="msg-empty">No messages yet.</div>';
+  body.scrollTop = body.scrollHeight;
+  document.getElementById('rep-msg-reply').disabled = false;
+  document.getElementById('rep-msg-reply-btn').disabled = false;
+  document.getElementById('rep-msg-clear-btn').style.display = 'block';
+}
+
+async function clearRepChat(){
+  if (!repMsgActiveId) return;
+  if (!confirm('Are you sure you want to clear all messages in this chat?')) return;
+  try {
+    const res = await fetch('/api/service-messages/threads/' + repMsgActiveId + '/messages', {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('Messages cleared.', 'ok');
+    openRepThread(repMsgActiveId);
+  } catch(e) {
+    showToast('Clear failed: ' + e.message, 'err');
+  }
+}
+
+async function sendRepNewMessage(){
+  const empVal = document.getElementById('rep-msg-recipient')?.value || '';
+  const msgEl = document.getElementById('rep-msg-new');
+  const message = msgEl?.value.trim() || '';
+  if (!empVal || !message) return showToast('Select recipient and type message.', 'err');
+  const selectedTeam = document.getElementById('rep-msg-team')?.value || '';
+  const selectedDivision = document.getElementById('rep-msg-division')?.value || '';
+  if (selectedTeam === 'service_team' && !selectedDivision) return showToast('Select the recipient division before sending.', 'err');
+
+  if (empVal === 'ALL') {
+    const options = Array.from(document.getElementById('rep-msg-recipient').options)
+      .map(o => o.value)
+      .filter(val => val && val !== 'ALL');
+    if (!options.length) return showToast('No recipients available in the list to send to.', 'err');
+    
+    let sentCount = 0;
+    showToast('Broadcasting message to all recipients...', 'info');
+    for (const val of options) {
+      const [recipientModel, recipientId] = val.split(':');
+      try {
+        const res = await fetch('/api/service-messages/threads', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ recipientId, recipientModel, division: selectedDivision, message })
+        });
+        if (res.ok) sentCount++;
+      } catch (_) {}
+    }
+    msgEl.value = '';
+    await loadRepMessageThreads();
+    showToast(`Broadcast message sent to ${sentCount} recipients.`, 'ok');
+    return;
+  }
+
+  const [recipientModel, recipientId] = empVal.split(':');
+  try{
+    const res = await fetch('/api/service-messages/threads', {
+      method:'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ recipientId, recipientModel, division: selectedDivision, message })
+    });
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(json.message || 'HTTP ' + res.status);
+    msgEl.value = '';
+    await loadRepMessageThreads();
+    if(json && json.data && json.data._id) {
+      await openRepThread(json.data._id);
+    }
+    showToast('Message sent.', 'ok');
+  }catch(e){ showToast('Send failed: ' + e.message, 'err'); }
+}
+
+async function sendRepReply(){
+  const msgEl = document.getElementById('rep-msg-reply');
+  const message = msgEl?.value.trim() || '';
+  if (!repMsgActiveId || !message) return;
+  try{
+    const res = await fetch('/api/service-messages/threads/' + repMsgActiveId + '/messages', {
+      method:'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ message })
+    });
+    const json = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(json.message || 'HTTP ' + res.status);
+    msgEl.value = '';
+    loadRepMessageThreads();
+    openRepThread(repMsgActiveId);
+  }catch(e){ showToast('Reply failed: ' + e.message, 'err'); }
+}
+
+function fmtRepMsgTime(value){
+  if (!value) return '';
+  const d = new Date(value);
+  return isNaN(d) ? '' : d.toLocaleString('en-IN', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+initRepMessages();
+loadDashboard();
+</script>
+</body>
+</html>

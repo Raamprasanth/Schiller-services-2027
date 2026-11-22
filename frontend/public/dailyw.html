@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function(){
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('si_theme') || 'light');
+  const token = sessionStorage.getItem('schiller_token');
+  const role = String(sessionStorage.getItem('schiller_role') || '').toLowerCase();
+  if (!token || !['employee','admin','superadmin','administrator'].includes(role)) window.location.href = 'login.html';
+})();
+</script>
+<title>SchillerIndia - Daily Work</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="global-typography.css">
+<link rel="stylesheet" href="employee-theme.css">
+<script src="employee-theme.js"></script>
+<link rel="stylesheet" href="topbar-alignment.css">
+<link rel="stylesheet" href="brand-logo.css">
+<link rel="stylesheet" href="dashboard-topbar-actions.css">
+<script src="dashboard-topbar-actions.js" defer></script>
+<script src="brand-logo.js" defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f4f8;--surface:#fff;--surface2:#e8f0f7;--surface3:#f8fafc;--border:#ccdde8;--accent:#0068b5;--accent3:rgba(0,104,181,0.08);--green:#059669;--green2:#047857;--red:#b91c1c;--text:#0f2236;--muted:#6b8ca8;--soft:#3d6480;--card:#fff;--shadow:0 1px 8px rgba(0,60,120,.07);--shadow-md:0 4px 12px rgba(0,60,120,.1);--shadow-lg:0 8px 24px rgba(0,60,120,.15)}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+.sidebar{width:225px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;box-shadow:2px 0 14px rgba(0,60,120,0.07)}
+.sidebar-header{padding:16px 16px 12px;border-bottom:1px solid var(--border);background:linear-gradient(145deg,#002d5c,#0068b5)}
+.logo-wrap{display:flex;align-items:center;gap:9px}
+.logo-text{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+.logo-text span{display:block;font-size:10px;color:rgba(255,255,255,0.55);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400}
+.emp-badge{margin:8px 12px 0;padding:3px 10px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;display:inline-block;background:rgba(4,120,87,0.12);color:#059669;border:1px solid rgba(4,120,87,0.2)}
+.sidebar-nav{flex:1;padding:8px 6px}
+.nav-sec{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;padding:9px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;color:var(--soft);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.18s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent3);color:var(--accent);font-weight:700;border-left:3px solid var(--accent);padding-left:8px}
+.nav-item .ico{font-size:12px;width:17px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:11px 12px;border-top:1px solid var(--border);background:var(--surface3)}
+.user-row{display:flex;align-items:center;gap:8px}
+.user-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#0ea5e9);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.user-nm{font-size:12px;font-weight:600;color:var(--text)}
+.user-rl{font-size:10px;color:var(--muted)}
+.logout-btn{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:10.5px;font-weight:600;transition:all 0.2s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+.nav-group-toggle{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;color:var(--soft,#3d6480);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;margin-bottom:3px;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif}
+.nav-group-toggle:hover{background:var(--surface2,#e8f0f7);color:var(--text,#0f2236)}
+.nav-group-toggle .ico{font-size:12px;width:17px;text-align:center;flex-shrink:0}
+.nav-group-toggle .caret{margin-left:auto;font-size:10px;transition:transform .22s ease}
+.nav-group-toggle.open .caret{transform:rotate(90deg)}
+.nav-children{max-height:0;overflow:hidden;transition:max-height .28s ease;margin-bottom:3px}
+.nav-children.open{max-height:650px;}
+.nav-sub .nav-item{padding-left:28px;font-size:11.5px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{padding:13px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);gap:14px}
+.topbar-left{min-width:0}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:10.5px;margin-bottom:2px;color:var(--muted);flex-wrap:wrap}
+.breadcrumb a{color:var(--muted);text-decoration:none}
+.breadcrumb a:hover{color:var(--accent)}
+.breadcrumb .sep{color:#b8cad8}
+.page-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);line-height:1.2}
+.topbar-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.topbar-date-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--surface3);font-size:11.5px;font-weight:700;color:var(--soft);white-space:nowrap}
+.content{padding:20px 24px;overflow:auto}
+.btn{border:none;border-radius:8px;padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:inline-flex;align-items:center;gap:6px}.btn-primary{background:var(--green);color:#fff}.btn-primary:hover{background:var(--green2)}.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--soft)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.modal-overlay{position:fixed;inset:0 0 0 225px;background:rgba(5,18,38,0.18);backdrop-filter:blur(3px);z-index:2000;display:none;align-items:stretch;justify-content:stretch;}
+.modal-overlay.open{display:flex;}
+.view-overlay{position:fixed;inset:0;background:rgba(5,18,38,0.45);backdrop-filter:blur(4px);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.view-overlay.open{display:flex}
+.view-box{background:var(--surface);width:min(680px,96vw);max-height:90vh;border-radius:16px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden}
+.view-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.view-detail{border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--surface3)}
+.view-detail.full{grid-column:1/-1}
+.view-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px}
+.view-value{font-size:13.5px;font-weight:700;color:var(--text);white-space:pre-wrap;line-height:1.5}
+.add-modal-box{background:var(--surface);width:100%;height:100vh;max-width:none;border-radius:0;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow:hidden;animation:fadeUp 0.2s ease;}
+.modal-head{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);flex-shrink:0}.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800}.modal-sub{font-size:11.5px;color:var(--muted);margin-top:3px}.modal-close{width:34px;height:34px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:15px}.modal-body{padding:22px 28px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex:1}.section-title{padding-bottom:8px;border-bottom:1px solid var(--border);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}.req{color:var(--red)}.field input,.field textarea,.field select{border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;font-size:13px;color:var(--text);background:var(--surface);font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:100%}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.1)}.field input[type=date]::-webkit-calendar-picker-indicator{width:14px;height:14px;opacity:.72}.dw-row{display:grid;grid-template-columns:210px minmax(360px,3fr) 150px 150px 40px;gap:12px;margin-bottom:12px;align-items:end}.dw-row .row-act{min-height:72px;resize:vertical}.modal-foot{padding:16px 28px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--surface3);flex-shrink:0}.msg{font-size:12px;font-weight:700;color:var(--red);display:none;padding:8px 12px;background:rgba(185,28,28,.06);border-radius:8px;border:1px solid rgba(185,28,28,.15);margin-right:auto}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.sidebar{display:none}.modal-overlay{left:0}.fg2{grid-template-columns:1fr}.dw-row{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.content{padding:14px}}
+
+/* CALENDAR & KANBAN LAYOUT */
+.grid-layout{display:grid;grid-template-columns:340px 1fr;gap:24px;padding:20px 24px;}
+@media(max-width:1000px){.grid-layout{grid-template-columns:1fr;}}
+
+/* CALENDAR PANEL */
+.cal-panel{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-md);overflow:hidden;align-self:start;position:sticky;top:90px;}
+.cal-head{background:linear-gradient(135deg,#0068b5,#005a9e);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;color:#fff;}
+.cal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.cal-nav-btn{background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-weight:bold;transition:background 0.2s;display:flex;align-items:center;justify-content:center;}
+.cal-nav-btn:hover{background:rgba(255,255,255,0.3);}
+.cal-body{padding:16px 20px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.cal-day-lbl{text-align:center;font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;padding-bottom:8px;}
+.cal-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;position:relative;transition:all 0.2s;border:1.5px solid transparent;background:var(--surface);}
+.cal-cell:hover:not(.empty-cell){background:var(--surface2);border-color:var(--border);}
+.cal-cell.empty-cell{cursor:default;}
+.cal-cell.today{color:var(--accent);font-weight:800;}
+.cal-cell.selected{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(0,104,181,0.25);border-color:var(--accent);}
+.has-entry-dot{width:5px;height:5px;background:var(--green);border-radius:50%;position:absolute;bottom:4px;left:50%;transform:translateX(-50%);}
+.cal-cell.selected .has-entry-dot{background:#fff;}
+
+/* KANBAN PANEL */
+.kanban-wrap{display:flex;flex-direction:column;gap:16px;}
+.kanban-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--border);padding-bottom:12px;}
+.kb-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);}
+.kb-subtitle{font-size:12px;color:var(--muted);margin-top:2px;}
+.kb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.kb-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:22px 20px;box-shadow:var(--shadow);transition:transform 0.2s, box-shadow 0.2s;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.kb-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--accent);}
+.kb-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green);border-radius:4px 0 0 4px;}
+.kb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.kb-num{font-size:10px;font-weight:800;color:var(--accent);background:var(--accent3);padding:3px 8px;border-radius:12px;}
+.kb-time{font-size:11.5px;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.kb-time .ico{color:var(--soft);font-size:13px;}
+.kb-activity{font-size:15px;font-weight:800;color:var(--text);line-height:1.5;flex:1;}
+.kb-foot{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;}
+.kb-user{font-size:10.5px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.kb-user span{background:var(--surface2);padding:2px 6px;border-radius:6px;color:var(--soft);font-weight:600;}
+.kb-view{background:rgba(0,104,181,0.08);color:var(--accent);border:1px solid rgba(0,104,181,0.15);height:30px;border-radius:7px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;font-size:11.5px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;}
+.kb-view:hover{background:var(--accent);color:#fff;}
+.kb-edit{background:rgba(4,120,87,0.08);color:var(--green);border:1px solid rgba(4,120,87,0.18);height:30px;border-radius:7px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;font-size:11.5px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;}
+.kb-edit:hover{background:var(--green);color:#fff;}
+.kb-empty{text-align:center;padding:60px 20px;background:var(--card);border:1.5px dashed var(--border);border-radius:14px;}
+.kb-empty-ico{font-size:32px;color:var(--muted);margin-bottom:10px;opacity:0.5;}
+.kb-empty-txt{font-size:14px;font-weight:600;color:var(--soft);}
+.kb-empty-sub{font-size:12px;color:var(--muted);margin-top:5px;}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <img class="brand-logo-img" src="logo.png" alt="SCHILLER">
+  <div style="padding:7px 12px 0;"><span class="emp-badge">Employee</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-sec">Operations</div>
+    <a class="nav-item" href="employee-dashboard.html"><span class="icon">&#128202;</span> Dashboard</a>
+    <a class="nav-item" href="employee-service-list.html"><span class="ico">&#128225;</span> Services</a>
+    <a class="nav-item" href="emppendingfrn.html"><span class="ico">&#128221;</span> Pending FRN</a>
+    <a class="nav-item" href="employee-ob-pending.html"><span class="ico">&#128230;</span> Estimation Pending</a>
+    <a class="nav-item" href="empestpend.html"><span class="ico">&#128203;</span> SO Pending</a>
+    <a class="nav-item" href="empunderep.html"><span class="ico">&#128736;&#65039;</span> Under Repair</a>
+    <a class="nav-item" href="completed-frn.html"><span class="ico">&#9989;</span> Completed FRN</a>
+    <a class="nav-item" href="eprfob.html"><span class="ico">&#128203;</span> TO/SO Register</a>
+    <a class="nav-item" href="ecr.html"><span class="ico">&#128274;</span> Closed TO/SO Register</a>
+    <a class="nav-item" href="elt.html"><span class="ico">&#128451;</span> Loan Items</a>
+    <a class="nav-item" href="ecli.html"><span class="ico">&#128193;</span> Closed Loan Item</a>
+    <a class="nav-item" href="sr.html"><span class="ico">&#128221;</span> Service Request</a>
+    <a class="nav-item" href="csr.html"><span class="ico">&#9989;</span> Closed SR</a>
+    <button class="nav-group-toggle" type="button" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><span class="ico">&#128736;&#65039;</span><span>Re-Export/Rep</span><span class="caret">&#9656;</span></button>
+    <div class="nav-children nav-sub">
+      <a class="nav-item" href="Emp-scrap-list.html"><span class="ico">&#9888;&#65039;</span> Re-Export Pending</a>
+      <a class="nav-item" href="csw.html"><span class="ico">&#128274;</span> Re-Export Completed</a>
+      <a class="nav-item" href="sc-completed-frn.html"><span class="ico">&#128257;</span> External Repair</a>
+      <a class="nav-item" href="cer.html"><span class="ico">&#128274;</span> Closed Ext Rep</a>
+    </div>
+    <button class="nav-group-toggle open" type="button" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><span class="ico">&#128193;</span><span>Activity Register</span><span class="caret">&#9656;</span></button>
+    <div class="nav-children nav-sub open">
+      <a class="nav-item" href="epa.html"><span class="ico">&#128221;</span> Pending Activity</a>
+      <a class="nav-item" href="ecpa.html"><span class="ico">&#9989;</span> Closed Activity</a>
+      <a class="nav-item" href="ecall.html"><span class="ico">&#128222;</span> Call Register</a>
+      <a class="nav-item" href="eclose.html"><span class="ico">&#9989;</span> Closed Calls</a>
+      <a class="nav-item" href="tours.html"><span class="ico">&#128506;&#65039;</span> Tour Summary</a>
+      <a class="nav-item active" href="dailyw.html"><span class="ico">&#128221;</span> Daily Work</a>
+    </div>
+    <button class="nav-group-toggle" type="button" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open');"><span class="ico">&#128230;</span><span>Reports</span><span class="caret">&#9656;</span></button>
+    <div class="nav-children nav-sub">
+      <a class="nav-item" href="emp-non-saleable.html"><span class="ico">&#128230;</span> Non Saleable</a>
+      <a class="nav-item" href="emp-saleables.html"><span class="ico">&#128176;</span> Saleables</a>
+      <a class="nav-item" href="ebir.html"><span class="ico">&#128202;</span> BIR LIST</a>
+      <a class="nav-item" href="ecbir.html"><span class="ico">&#128193;</span> Closed BIR</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer"><div class="user-row"><div class="user-av" id="emp-avatar">E</div><div><div class="user-nm" id="emp-name">Employee</div><div class="user-rl" id="emp-desig">Field Engineer</div></div><button class="logout-btn" onclick="logout()">&#8617;&#65039;</button></div></div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="breadcrumb"><a href="employee-dashboard.html">Dashboard</a><span class="sep">&#8250;</span><span>Records</span><span class="sep">&#8250;</span><span>Daily Work</span></div>
+      <div class="page-title">Daily Work</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="topbar-date-pill" id="topbar-date"></span>
+      <select id="member-filter" class="btn btn-outline" style="min-width:170px;justify-content:flex-start;" onchange="changeDailyWorkMember()"></select>
+      <button class="btn btn-outline" onclick="renderCalendar()">&#10227; Refresh</button>
+      <button class="btn btn-primary" style="background:#047857;" onclick="exportToExcel()">&#128229; Export</button>
+      <button class="btn btn-primary" onclick="openDwModal()">&#43; Add Entry</button>
+    </div>
+  </div>
+
+  <div class="content grid-layout">
+    <!-- CALENDAR -->
+    <aside class="cal-panel">
+      <div class="cal-head">
+        <button class="cal-nav-btn" onclick="prevMonth()">&#10094;</button>
+        <div class="cal-title" id="cal-title">Month Year</div>
+        <button class="cal-nav-btn" onclick="nextMonth()">&#10095;</button>
+      </div>
+      <div class="cal-body">
+        <div class="cal-grid">
+          <div class="cal-day-lbl">Su</div><div class="cal-day-lbl">Mo</div><div class="cal-day-lbl">Tu</div>
+          <div class="cal-day-lbl">We</div><div class="cal-day-lbl">Th</div><div class="cal-day-lbl">Fr</div><div class="cal-day-lbl">Sa</div>
+        </div>
+        <div class="cal-grid" id="cal-grid">
+          <!-- Calendar cells injected here -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- KANBAN BOARD -->
+    <div class="kanban-wrap">
+      <div class="kanban-header">
+        <div>
+          <div class="kb-title" id="kb-date-title">Select a Date</div>
+          <div class="kb-subtitle" id="kb-count">0 entries found</div>
+        </div>
+      </div>
+      <div class="kb-grid" id="kb-grid">
+        <!-- Cards injected here -->
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="dw-overlay">
+  <div class="add-modal-box">
+    <div class="modal-head"><div><div class="modal-title">&#128197; Add New Daily Work</div><div class="modal-sub">Record your activity details and time slot</div></div><button class="modal-close" onclick="closeDwModal()">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="section-title">Work Details</div>
+      <div class="fg2">
+        <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="dw-date" readonly disabled style="background: var(--surface2); cursor: not-allowed; opacity: 0.8; color: var(--muted);"></div>
+      </div>
+      <div class="section-title" style="margin-top:15px;display:flex;justify-content:space-between;border-bottom:none;">
+        <span>Activities</span>
+        <span id="dw-total-hours" style="color:var(--accent);">Total: 0h 0m</span>
+      </div>
+      <datalist id="team-options">
+        <option value="Production"></option>
+        <option value="FQC"></option>
+        <option value="Field Support"></option>
+        <option value="Service"></option>
+      </datalist>
+      <div id="dw-rows-container"></div>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:5px;" id="add-row-btn" onclick="addDwRow()">+ Add Row</button>
+    </div>
+    <div class="modal-foot"><div class="msg" id="dw-msg"></div><button class="btn btn-outline" onclick="closeDwModal()">Cancel</button><button class="btn btn-primary" id="save-btn" onclick="saveDw()">&#128190; Save Entry</button></div>
+  </div>
+</div>
+
+<div class="view-overlay" id="dw-view-overlay">
+  <div class="view-box">
+    <div class="modal-head"><div><div class="modal-title">Daily Work Detail</div><div class="modal-sub" id="view-sub">Read-only entry</div></div><button class="modal-close" onclick="closeDwView()">&#10005;</button></div>
+    <div class="modal-body" id="dw-view-body"></div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeDwView()">Close</button></div>
+  </div>
+</div>
+
+<script>
+let currentDate = new Date();
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+let editId = null;
+let DW_ALL_LIST = [];
+let DW_MEMBER_NAMES = [];
+let DW_LIST = [];
+let selectedMemberName = '';
+const todayOffset = currentDate.getTimezoneOffset() * 60000;
+let selectedDateStr = new Date(currentDate.getTime() - todayOffset).toISOString().split("T")[0];
+
+(function initDailyWorkPage(){
+  const user = JSON.parse(sessionStorage.getItem("schiller_user") || "{}");
+  const name = user.name || "Employee";
+  const role = user.designation || 'Field Engineer';
+  selectedMemberName = name;
+
+  ["emp-name", "user-nm", "tb-name"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = name;
+  });
+  ["emp-avatar", "user-av", "tb-avatar"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = name.charAt(0).toUpperCase();
+  });
+  ["emp-desig", "user-rl", "tb-role"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = role;
+  });
+
+  const tbDate = document.getElementById("topbar-date");
+  if (tbDate) tbDate.textContent = new Date().toLocaleDateString("en-IN", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric"
+  });
+
+  renderCalendar();
+})();
+
+function normalizeName(value){
+  return String(value || '').trim();
+}
+
+function currentUserName(){
+  const user = JSON.parse(sessionStorage.getItem('schiller_user') || '{}');
+  return normalizeName(user.name || 'Employee');
+}
+
+function entryMemberName(item){
+  return normalizeName(item.addedBy || 'User');
+}
+
+function renderMemberFilter(){
+  const select = document.getElementById('member-filter');
+  if (!select) return;
+  const current = currentUserName();
+  if (!selectedMemberName) selectedMemberName = current;
+  const names = [...new Set([...DW_MEMBER_NAMES, ...DW_ALL_LIST.map(entryMemberName)].filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  if (current && !names.includes(current)) names.unshift(current);
+  select.innerHTML = names.map(name => `<option value="${escAttr(name)}" ${name === selectedMemberName ? 'selected' : ''}>${esc(name === current ? 'My entries' : name)}</option>`).join('');
+}
+
+function applyMemberFilter(){
+  const selected = normalizeName(selectedMemberName || currentUserName());
+  DW_LIST = DW_ALL_LIST.filter(item => entryMemberName(item) === selected);
+}
+
+function changeDailyWorkMember(){
+  const select = document.getElementById('member-filter');
+  selectedMemberName = select ? select.value : currentUserName();
+  renderCalendar(false);
+}
+function currentUserId(){
+  const user = JSON.parse(sessionStorage.getItem('schiller_user') || '{}');
+  return String(user._id || user.id || user.userId || '');
+}
+
+function canDeleteDw(item){
+  const user = JSON.parse(sessionStorage.getItem('schiller_user') || '{}');
+  const role = String(user.role || '').toLowerCase();
+  if (['admin','superadmin','administrator'].includes(role)) return true;
+  const ownerId = String((item.userId && (item.userId._id || item.userId.id)) || item.userId || '');
+  return ownerId && ownerId === currentUserId();
+}
+function hdrs(){
+  return {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + (sessionStorage.getItem("schiller_token") || "")
+  };
+}
+
+async function fetchDwMembers(){
+  try {
+    const res = await fetch('/api/empdw/members', { headers: hdrs(), cache: 'no-store' });
+    const data = await res.json().catch(() => []);
+    DW_MEMBER_NAMES = res.ok && Array.isArray(data) ? data.map(normalizeName).filter(Boolean) : [];
+  } catch (err) {
+    console.warn('[dailyw] member fetch failed', err);
+    DW_MEMBER_NAMES = [];
+  }
+}
+async function fetchDwList(){
+  try {
+    await fetchDwMembers();
+    const res = await fetch("/api/empdw", { headers: hdrs(), cache: "no-store" });
+    if (res.status === 401 || res.status === 403) {
+      window.location.href = "login.html";
+      return;
+    }
+    const data = await res.json().catch(() => []);
+    DW_ALL_LIST = res.ok && Array.isArray(data) ? data : [];
+    renderMemberFilter();
+    applyMemberFilter();
+  } catch (err) {
+    console.error("[dailyw] fetch failed", err);
+    DW_ALL_LIST = [];
+    DW_LIST = [];
+  }
+}
+
+async function renderCalendar(fetchFresh = true){
+  if (fetchFresh) {
+    await fetchDwList();
+  } else {
+    applyMemberFilter();
+  }
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const title = document.getElementById("cal-title");
+  const grid = document.getElementById("cal-grid");
+  if (title) title.textContent = monthNames[currentMonth] + " " + currentYear;
+  if (!grid) return;
+
+  grid.innerHTML = "";
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const todayStr = toDateString(new Date());
+  const entryDates = new Set(DW_LIST.map(item => item.date));
+
+  for (let i = 0; i < firstDay; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cal-cell empty-cell";
+    grid.appendChild(cell);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const cellDate = new Date(currentYear, currentMonth, day);
+    const cellDateStr = toDateString(cellDate);
+    const cell = document.createElement("div");
+    cell.className = "cal-cell";
+    cell.textContent = day;
+    if (cellDateStr === todayStr) cell.classList.add("today");
+    if (cellDateStr === selectedDateStr) cell.classList.add("selected");
+    if (entryDates.has(cellDateStr)) {
+      const dot = document.createElement("span");
+      dot.className = "has-entry-dot";
+      cell.appendChild(dot);
+    }
+    cell.addEventListener("click", () => {
+      selectedDateStr = cellDateStr;
+      renderCalendar();
+    });
+    grid.appendChild(cell);
+  }
+
+  renderKanban();
+}
+
+function prevMonth(){
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  renderCalendar();
+}
+
+function nextMonth(){
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar();
+}
+
+function renderKanban(){
+  const title = document.getElementById("kb-date-title");
+  const count = document.getElementById("kb-count");
+  const grid = document.getElementById("kb-grid");
+  if (!title || !count || !grid) return;
+
+  const displayDate = new Date(selectedDateStr + "T00:00:00").toLocaleDateString("en-IN", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric"
+  });
+  const dayEntries = DW_LIST.filter(item => item.date === selectedDateStr);
+  title.textContent = "Entries for " + displayDate;
+  count.textContent = dayEntries.length + (dayEntries.length === 1 ? " entry found" : " entries found");
+
+  if (!dayEntries.length) {
+    grid.style.display = "block";
+    grid.innerHTML = `<div class="kb-empty" style="grid-column:1/-1;">
+      <div class="kb-empty-ico">&#128198;</div>
+      <div class="kb-empty-txt">No entries for this date</div>
+      <div class="kb-empty-sub">Click "Add Entry" at the top to log your work.</div>
+    </div>`;
+    return;
+  }
+
+  grid.style.display = "grid";
+  grid.innerHTML = dayEntries.map((item, index) => `
+    <div class="kb-card">
+      <div class="kb-top">
+        <div class="kb-num">#${index + 1}</div>
+        <div class="kb-time"><span class="ico">&#128336;</span> ${esc(item.fromTime || "--")} to ${esc(item.toTime || "--")}</div>
+      </div>
+      <div class="kb-activity">${esc(item.activity || "")}</div>
+      <div class="kb-foot">
+        <div class="kb-user">By <span>${esc(item.addedBy || "User")}</span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="kb-view" onclick="viewDw('${escAttr(item._id)}')" title="View Entry">View</button>
+          ${isTodayEntry(item.date) ? `<button class="kb-edit" onclick="editDw('${escAttr(item._id)}')" title="Edit Entry">Edit</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function viewDw(id){
+  const entry = DW_LIST.find(item => item._id === id);
+  if (!entry) return;
+  const date = entry.date ? new Date(entry.date + "T00:00:00").toLocaleDateString("en-IN", {
+    day: "2-digit", month: "short", year: "numeric"
+  }) : "-";
+  document.getElementById("view-sub").textContent = date;
+  document.getElementById("dw-view-body").innerHTML = `
+    <div class="view-detail-grid">
+      <div class="view-detail"><div class="view-label">Date</div><div class="view-value">${esc(date)}</div></div>
+      <div class="view-detail"><div class="view-label">Team / Division</div><div class="view-value">${esc(entry.team || "-")}</div></div>
+      <div class="view-detail"><div class="view-label">From</div><div class="view-value">${esc(entry.fromTime || "-")}</div></div>
+      <div class="view-detail"><div class="view-label">To</div><div class="view-value">${esc(entry.toTime || "-")}</div></div>
+      <div class="view-detail"><div class="view-label">Total</div><div class="view-value">${esc(entry.dayTotal || durationText(entry.fromTime, entry.toTime) || "-")}</div></div>
+      <div class="view-detail"><div class="view-label">Added By</div><div class="view-value">${esc(entry.addedBy || "User")}</div></div>
+      <div class="view-detail full"><div class="view-label">Activity</div><div class="view-value">${esc(entry.activity || "-")}</div></div>
+    </div>`;
+  document.getElementById("dw-view-overlay").classList.add("open");
+}
+
+function closeDwView(){
+  document.getElementById("dw-view-overlay").classList.remove("open");
+}
+
+function openDwModal(){
+  const t = new Date();
+  const offset = t.getTimezoneOffset() * 60000;
+  const todayStr = new Date(t.getTime() - offset).toISOString().split("T")[0];
+  const y = new Date(t.getTime() - 86400000);
+  const yesterdayStr = new Date(y.getTime() - offset).toISOString().split("T")[0];
+  
+  if (selectedDateStr !== todayStr && selectedDateStr !== yesterdayStr) {
+    alert("You can only add new entries for today or yesterday.");
+    return;
+  }
+
+  editId = null;
+  clearForm();
+  document.getElementById("dw-date").value = selectedDateStr;
+  addDwRow();
+  document.querySelector(".modal-title").innerHTML = "&#128197; Add New Daily Work";
+  document.getElementById("save-btn").innerHTML = "&#128190; Save Entry";
+  document.getElementById("add-row-btn").style.display = "flex";
+  document.getElementById("dw-overlay").classList.add("open");
+  setTimeout(() => document.querySelector(".row-team")?.focus(), 50);
+}
+
+function closeDwModal(){
+  document.getElementById("dw-overlay").classList.remove("open");
+}
+
+function clearForm(){
+  const date = document.getElementById("dw-date");
+  if (date) date.value = "";
+  document.getElementById("dw-rows-container").innerHTML = "";
+  document.getElementById("dw-total-hours").textContent = "Total: 0h 0m";
+  showMsg("");
+}
+
+function isTodayEntry(entryDate){
+  if (!entryDate) return false;
+  const t = new Date();
+  const offset = t.getTimezoneOffset() * 60000;
+  const todayStr = new Date(t.getTime() - offset).toISOString().split("T")[0];
+  return String(entryDate).trim() === todayStr;
+}
+
+function editDw(id){
+  const entry = DW_LIST.find(item => item._id === id);
+  if (!entry) return;
+  if (!isTodayEntry(entry.date)) {
+    alert("You can only edit today's entries.");
+    return;
+  }
+
+  editId = id;
+  clearForm();
+  document.getElementById("dw-date").value = entry.date;
+
+  const container = document.getElementById("dw-rows-container");
+  container.innerHTML = `
+    <div class="dw-row" id="row-edit">
+      <div class="field"><label>Team / Division</label><input type="text" class="row-team" list="team-options" placeholder="Team / Division" value="${escAttr(entry.team || '')}"></div>
+      <div class="field"><label>Activity</label><textarea class="row-act" placeholder="Activity done" rows="3">${esc(entry.activity || '')}</textarea></div>
+      <div class="field"><label>From</label><input type="time" class="row-from" value="${escAttr(entry.fromTime || '')}" onchange="calcTotalHours()"></div>
+      <div class="field"><label>To</label><input type="time" class="row-to" value="${escAttr(entry.toTime || '')}" onchange="calcTotalHours()"></div>
+    </div>
+  `;
+
+  calcTotalHours();
+
+  document.querySelector(".modal-title").innerHTML = "&#9998; Edit Daily Work";
+  document.getElementById("save-btn").innerHTML = "&#128190; Update Entry";
+  const addBtn = document.getElementById("add-row-btn");
+  if (addBtn) addBtn.style.display = "none";
+  document.getElementById("dw-overlay").classList.add("open");
+  setTimeout(() => document.querySelector(".row-team")?.focus(), 50);
+}
+
+async function saveDw(){
+  const date = val("dw-date");
+  if (!date) {
+    showMsg("Date is required.");
+    return;
+  }
+
+  const teams = document.querySelectorAll(".row-team");
+  const acts = document.querySelectorAll(".row-act");
+  const froms = document.querySelectorAll(".row-from");
+  const tos = document.querySelectorAll(".row-to");
+  const entries = [];
+
+  for (let i = 0; i < acts.length; i++) {
+    const team = teams[i]?.value.trim();
+    const activity = acts[i]?.value.trim();
+    const fromTime = froms[i]?.value;
+    const toTime = tos[i]?.value;
+    if (!team || !activity || !fromTime || !toTime) {
+      showMsg("All activity rows must have Team/Division, Activity, From time, and To time.");
+      return;
+    }
+    entries.push({ team, activity, fromTime, toTime });
+  }
+
+  if (!entries.length) {
+    showMsg("Please add at least one activity row.");
+    return;
+  }
+
+  const btn = document.getElementById("save-btn");
+  btn.disabled = true;
+  btn.textContent = editId ? "Updating..." : "Saving...";
+  try {
+    const dayTotal = document.getElementById("dw-total-hours").textContent.replace("Total: ", "");
+    if (editId) {
+      const entry = entries[0];
+      const payload = { date, ...entry, dayTotal };
+      const res = await fetch("/api/empdw/" + encodeURIComponent(editId), {
+        method: "PUT",
+        headers: hdrs(),
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.message || "HTTP " + res.status);
+      }
+    } else {
+      for (const entry of entries) {
+        const payload = { date, ...entry, dayTotal };
+        const res = await fetch("/api/empdw", {
+          method: "POST",
+          headers: hdrs(),
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+          throw new Error(json.message || "HTTP " + res.status);
+        }
+      }
+    }
+
+    if (date !== selectedDateStr) {
+      selectedDateStr = date;
+      const chosen = new Date(date + "T00:00:00");
+      currentMonth = chosen.getMonth();
+      currentYear = chosen.getFullYear();
+    }
+    closeDwModal();
+    await renderCalendar();
+  } catch (err) {
+    showMsg((editId ? "Update" : "Save") + " failed: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = editId ? "&#128190; Update Entry" : "&#128190; Save Entry";
+  }
+}
+
+function addDwRow(){
+  const container = document.getElementById("dw-rows-container");
+  const rowId = Date.now() + Math.floor(Math.random() * 1000);
+  container.insertAdjacentHTML("beforeend", `
+    <div class="dw-row" id="row-${rowId}">
+      <div class="field"><label>Team / Division</label><input type="text" class="row-team" list="team-options" placeholder="Team / Division"></div>
+      <div class="field"><label>Activity</label><textarea class="row-act" placeholder="Activity done" rows="3"></textarea></div>
+      <div class="field"><label>From</label><input type="time" class="row-from" onchange="calcTotalHours()"></div>
+      <div class="field"><label>To</label><input type="time" class="row-to" onchange="calcTotalHours()"></div>
+      <button class="kb-del" style="height:35px;width:34px;margin-bottom:2px;" onclick="document.getElementById('row-${rowId}').remove(); calcTotalHours();" title="Remove">&#128465;</button>
+    </div>
+  `);
+}
+
+function calcTotalHours(){
+  let totalMins = 0;
+  const froms = document.querySelectorAll(".row-from");
+  const tos = document.querySelectorAll(".row-to");
+  for (let i = 0; i < froms.length; i++) {
+    totalMins += durationMinutes(froms[i].value, tos[i].value);
+  }
+  const hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  document.getElementById("dw-total-hours").textContent = `Total: ${hours}h ${mins}m`;
+  return totalMins;
+}
+
+function exportToExcel(){
+  if (!DW_LIST.length) {
+    alert("No data to export.");
+    return;
+  }
+  const data = DW_LIST.map(item => ({
+    "Date": item.date || "",
+    "Team / Division": item.team || "",
+    "Activity": item.activity || "",
+    "From Time": item.fromTime || "",
+    "To Time": item.toTime || "",
+    "Duration": durationText(item.fromTime, item.toTime),
+    "Day Total": item.dayTotal || "",
+    "Added By": item.addedBy || "User"
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Daily Work");
+  XLSX.writeFile(wb, "Employee_Daily_Work.xlsx");
+}
+
+async function deleteDw(id){
+  if (!confirm("Delete this entry?")) return;
+  try {
+    const res = await fetch("/api/empdw/" + encodeURIComponent(id), {
+      method: "DELETE",
+      headers: hdrs()
+    });
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      throw new Error(json.message || "HTTP " + res.status);
+    }
+    await renderCalendar();
+  } catch (err) {
+    alert("Failed to delete: " + err.message);
+  }
+}
+
+function durationMinutes(fromTime, toTime){
+  if (!fromTime || !toTime) return 0;
+  const [fh, fm] = fromTime.split(":").map(Number);
+  const [th, tm] = toTime.split(":").map(Number);
+  if ([fh, fm, th, tm].some(Number.isNaN)) return 0;
+  let mins = (th * 60 + tm) - (fh * 60 + fm);
+  if (mins < 0) mins += 24 * 60;
+  return mins;
+}
+
+function durationText(fromTime, toTime){
+  const mins = durationMinutes(fromTime, toTime);
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
+function toDateString(date){
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().split("T")[0];
+}
+
+function val(id){
+  return (document.getElementById(id)?.value || "").trim();
+}
+
+function showMsg(message){
+  const el = document.getElementById("dw-msg");
+  if (!el) return;
+  el.textContent = message;
+  el.style.display = message ? "block" : "none";
+}
+
+function esc(value){
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function escAttr(value){
+  return esc(value).replace(/'/g, "&#39;");
+}
+
+function logout(){
+  sessionStorage.clear();
+  localStorage.clear();
+  window.location.href = "login.html";
+}
+
+document.getElementById("dw-overlay").addEventListener("click", event => {
+  if (event.target.id === "dw-overlay") closeDwModal();
+});
+document.getElementById("dw-view-overlay").addEventListener("click", event => {
+  if (event.target.id === "dw-view-overlay") closeDwView();
+});
+</script>
+<script src="tab-fix.js"></script>
+</body>
+</html>
+
+

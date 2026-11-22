@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<script>(function(){
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('si_theme')||'light');
+  const token = sessionStorage.getItem('schiller_token');
+  const role = String(sessionStorage.getItem('schiller_role') || '').toLowerCase();
+  if (!token || !['employee','service_coordinator','admin','superadmin'].includes(role)) window.location.href = 'login.html';
+})();</script>
+<title>SchillerIndia - Closed DR</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#f0f4f8;--surface:#ffffff;--surface2:#e8f0f7;--surface3:#f5f9fc;
+  --border:#ccdde8;--border2:#ddeaf4;
+  --accent:#0068b5;--accent2:#005a9e;--accent3:#e8f3fb;
+  --green:#047857;--green-bg:rgba(4,120,87,0.08);
+  --amber:#b45309;--amber-bg:rgba(180,83,9,0.08);
+  --red:#b91c1c;--red-bg:rgba(185,28,28,0.07);
+  --purple:#5b21b6;--purple-bg:rgba(91,33,182,0.08);
+  --teal:#0e7490;--teal-bg:rgba(14,116,144,0.08);
+  --text:#0f2236;--muted:#6b8ca8;--soft:#3d6480;--card:#ffffff;
+  --shadow:0 1px 8px rgba(0,60,120,0.07);
+  --shadow-md:0 4px 20px rgba(0,60,120,0.1);
+  --shadow-lg:0 12px 40px rgba(0,60,120,0.13);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* -- SIDEBAR (matches sc-dashboard exactly) -- */
+.sidebar{width:230px;min-height:100vh;background:#ffffff;border-right:1px solid #ccdde8;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;box-shadow:2px 0 16px rgba(0,60,120,0.08);}
+.sidebar-header{padding:18px 16px 14px;border-bottom:1px solid #ccdde8;background:linear-gradient(145deg,#002d5c,#0068b5);}
+.logo-wrap{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#fff;border:1.5px solid rgba(255,255,255,0.25);}
+.logo-text{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:#fff;line-height:1.25;}
+.logo-text span{display:block;font-size:10px;color:rgba(255,255,255,0.55);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;}
+.sc-badge{margin:8px 12px 0;padding:4px 11px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;display:inline-block;background:rgba(14,116,144,0.18);color:#22d3ee;border:1px solid rgba(14,116,144,0.35);}
+.sidebar-nav{flex:1;padding:10px 8px;}
+.nav-sec{font-size:9px;font-weight:700;color:#6b8ca8;letter-spacing:0.12em;text-transform:uppercase;padding:10px 9px 4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:8px;color:#3d6480;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.18s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;}
+.nav-item:hover{background:#e8f0f7;color:#0f2236;}
+.nav-item.active{background:#e8f3fb;color:#0068b5;font-weight:700;border-left:3px solid #0068b5;padding-left:9px;}
+.nav-item .ico{font-size:13px;width:18px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:#b91c1c;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:9px;}
+.nav-badge.green{background:#047857;}
+.nav-badge.amber{background:#b45309;}
+.sidebar-footer{padding:12px 13px;border-top:1px solid #ccdde8;background:#f5f9fc;}
+.user-row{display:flex;align-items:center;gap:9px;}
+.user-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0e7490,#0068b5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
+.user-nm{font-size:12.5px;font-weight:600;color:#0f2236;}
+.user-rl{font-size:10px;color:#6b8ca8;}
+.logout-btn{margin-left:auto;background:none;border:1px solid #ccdde8;color:#6b8ca8;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:10.5px;font-weight:600;transition:all 0.2s;}
+.logout-btn:hover{border-color:#b91c1c;color:#b91c1c;}
+
+/* -- MAIN -- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{padding:13px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);position:sticky;top:0;z-index:20;box-shadow:var(--shadow);}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:10.5px;margin-bottom:2px;}
+.breadcrumb a{color:var(--muted);text-decoration:none;}
+.breadcrumb a:hover{color:var(--accent);}
+.breadcrumb .sep{color:var(--border2);}
+.page-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.content{flex:1;padding:20px 24px;overflow-y:auto;}
+
+/* -- STATS -- */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);transition:all 0.2s;position:relative;overflow:hidden;display:grid;grid-template-columns:24px 1fr;column-gap:8px;align-items:start;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:11px 11px 0 0;}
+.sc-blue::before{background:linear-gradient(90deg,#0068b5,#0ea5e9);}
+.sc-amber::before{background:linear-gradient(90deg,#b45309,#d97706);}
+.sc-red::before{background:linear-gradient(90deg,#b91c1c,#dc2626);}
+.sc-green::before{background:linear-gradient(90deg,#047857,#059669);}
+.sc-purple::before{background:linear-gradient(90deg,#5b21b6,#7c3aed);}
+.sc-teal::before{background:linear-gradient(90deg,#0e7490,#0891b2);}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.stat-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;grid-column:1;grid-row:1;}
+.si-blue{background:rgba(0,104,181,0.1);}
+.si-amber{background:rgba(180,83,9,0.1);}
+.si-red{background:rgba(185,28,28,0.1);}
+.si-green{background:rgba(4,120,87,0.1);}
+.si-purple{background:rgba(91,33,182,0.1);}
+.si-teal{background:rgba(14,116,144,0.1);}
+.stat-label{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;grid-column:2;grid-row:1;align-self:center;}
+.stat-value{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);line-height:1;grid-column:1 / span 2;grid-row:2;margin-top:6px;}
+.stat-sub{font-size:9px;color:var(--muted);margin-top:2px;grid-column:1 / span 2;grid-row:3;}
+
+/* -- TABLE CARD -- */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.table-top{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--surface3);}
+.table-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.count-chip{background:var(--accent3);color:var(--accent);font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:10px;border:1px solid rgba(0,104,181,0.15);}
+.closed-chip{background:var(--green-bg);color:var(--green);font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:10px;border:1px solid rgba(4,120,87,0.2);}
+.toolbar-r{display:flex;align-items:center;gap:9px;}
+.show-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);}
+.f-select{padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;cursor:pointer;transition:border-color 0.2s;}
+.f-select:focus{border-color:var(--accent);}
+.srch-wrap{position:relative;}
+.srch-wrap input{padding:7px 12px 7px 30px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;width:220px;transition:border-color 0.2s,box-shadow 0.2s;}
+.srch-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,104,181,0.07);}
+.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);}
+
+/* -- FILTER STRIP -- */
+.filter-strip{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fafcfe;}
+.filter-strip label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;white-space:nowrap;}
+.f-inp{padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.2s;}
+.f-inp:focus{border-color:var(--accent);}
+.f-divider{width:1px;height:24px;background:var(--border);flex-shrink:0;}
+
+/* -- TABLE -- */
+.table-wrap{overflow-x:auto;}
+table.frn-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:1500px;}
+table.frn-table thead th{padding:9px 10px;font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;text-align:left;border-bottom:2px solid var(--border);background:var(--surface3);white-space:nowrap;cursor:pointer;user-select:none;transition:color 0.2s;}
+table.frn-table thead th:hover{color:var(--accent);}
+table.frn-table thead th.sorted{color:var(--accent);}
+table.frn-table thead th .si{font-size:8px;margin-left:2px;opacity:0.45;}
+table.frn-table thead th.sorted .si{opacity:1;}
+table.frn-table thead th.no-sort{cursor:default;}
+table.frn-table thead th.no-sort:hover{color:var(--muted);}
+table.frn-table tbody td{padding:9px 10px;border-bottom:1px solid rgba(0,60,120,0.05);vertical-align:middle;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;}
+table.frn-table tbody td.wrap-cell{white-space:normal;max-width:220px;line-height:1.45;}
+table.frn-table tbody tr{transition:background 0.13s;}
+table.frn-table tbody tr:hover td{background:rgba(0,104,181,0.03);}
+table.frn-table tbody tr:last-child td{border-bottom:none;}
+.table-foot{padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--muted);flex-wrap:wrap;gap:8px;background:var(--surface3);}
+.pager-row{display:flex;align-items:center;gap:3px;}
+.pager{min-width:28px;height:28px;padding:0 7px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--soft);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.18s;font-family:'Plus Jakarta Sans',sans-serif;}
+.pager:hover{border-color:var(--accent);color:var(--accent);}
+.pager.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pager:disabled{opacity:0.3;cursor:not-allowed;}
+
+/* -- PILLS -- */
+.s-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.s-pill::before{content:'';width:5px;height:5px;border-radius:50%;display:block;}
+.sp-prf{background:var(--purple-bg);color:var(--purple);}.sp-prf::before{background:var(--purple);}
+.sp-ob{background:var(--amber-bg);color:var(--amber);}.sp-ob::before{background:var(--amber);}
+.sp-completed{background:var(--green-bg);color:var(--green);}.sp-completed::before{background:var(--green);}
+.sp-closed{background:var(--green-bg);color:var(--green);}.sp-closed::before{background:var(--green);}
+.sp-rejected{background:var(--red-bg);color:var(--red);}.sp-rejected::before{background:var(--red);}
+.sp-ow{background:var(--purple-bg);color:var(--purple);}.sp-ow::before{background:var(--purple);}
+.sp-lamc{background:rgba(194,85,10,0.08);color:#9a3412;}.sp-lamc::before{background:#9a3412;}
+.sp-camc{background:var(--accent3);color:var(--accent);}.sp-camc::before{background:var(--accent);}
+.sp-ew{background:var(--teal-bg);color:var(--teal);}.sp-ew::before{background:var(--teal);}
+.sp-stock{background:var(--green-bg);color:var(--green);}.sp-stock::before{background:var(--green);}
+.sp-iw{background:rgba(107,140,168,0.12);color:var(--muted);}.sp-iw::before{background:var(--muted);}
+.branch-tag{background:var(--teal-bg);color:var(--teal);padding:2px 7px;border-radius:9px;font-size:9.5px;font-weight:700;}
+.div-tag{background:var(--purple-bg);color:var(--purple);padding:2px 7px;border-radius:9px;font-size:9.5px;font-weight:700;}
+.mono{font-family:monospace;font-size:10.5px;}
+
+/* -- BUTTONS -- */
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(0,104,181,0.22);}.btn-primary:hover{background:var(--accent2);}
+.btn-success{background:var(--green);color:#fff;box-shadow:0 2px 8px rgba(4,120,87,0.2);}.btn-success:hover{background:#036644;}
+.btn-outline{background:none;border:1.5px solid var(--border);color:var(--soft);}.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:6px 13px;font-size:12px;}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:6px;border:1.5px solid var(--border);background:none;color:var(--soft);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;}
+.btn-xs:hover{border-color:var(--accent);color:var(--accent);background:var(--accent3);}
+.btn-xs.update{color:var(--accent);border-color:rgba(0,104,181,0.3);background:var(--accent3);}
+
+/* -- LOADING / EMPTY -- */
+.loading-row td{text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-st{text-align:center;padding:50px 20px;}
+.ei{font-size:38px;margin-bottom:10px;opacity:0.28;}
+.et{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.es{font-size:12px;color:var(--muted);}
+
+/* -- DETAIL MODAL (full-screen, offset past sidebar) -- */
+.overlay{position:fixed;top:0;left:230px;right:0;bottom:0;background:rgba(5,18,38,0.55);backdrop-filter:blur(4px);z-index:500;display:none;align-items:stretch;}
+.overlay.open{display:flex;animation:fadeIn 0.18s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.modal{background:var(--surface);width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);z-index:2;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.modal-close{width:34px;height:34px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.modal-close:hover{background:var(--red-bg);color:var(--red);border-color:rgba(185,28,28,0.3);}
+
+/* Record info strip */
+.rec-info{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface3);}
+.rec-info-item{padding:11px 18px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.rec-info-item:nth-child(5n){border-right:none;}
+.rec-info-item:nth-child(n+6){border-bottom:none;}
+.rec-info-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:3px;}
+.rec-info-val{font-size:12.5px;font-weight:700;color:var(--accent);}
+.rec-info-val.normal{color:var(--text);font-weight:600;}
+
+.modal-scroll{flex:1;overflow-y:auto;}
+.modal-body{padding:28px;}
+
+/* Detail grid */
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.detail-item{background:var(--surface3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;}
+.detail-item.span2{grid-column:span 2;}
+.detail-item.span3{grid-column:span 3;}
+.detail-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:6px;}
+.detail-val{font-size:13px;font-weight:600;color:var(--text);line-height:1.5;}
+.detail-val.accent{color:var(--accent);}
+.detail-val.mono{font-family:monospace;font-size:12px;}
+.detail-section-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-top:10px;}
+.detail-section-title:first-child{margin-top:0;}
+
+/* Update form inside modal */
+.update-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.update-grid.g3{grid-template-columns:repeat(3,1fr);}
+.ff{display:flex;flex-direction:column;gap:5px;}
+.ff label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.ff label .req{color:var(--red);}
+.ff input,.ff select,.ff textarea{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12.5px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;}
+.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,104,181,0.08);}
+.ff input.err,.ff select.err{border-color:var(--red)!important;}
+.ff textarea{resize:none;height:72px;}
+.ff input::placeholder,.ff textarea::placeholder{color:var(--muted);font-size:11.5px;}
+.span2{grid-column:span 2;}.span3{grid-column:span 3;}.span4{grid-column:span 4;}
+.modal-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px;justify-content:flex-end;background:var(--surface3);flex-shrink:0;}
+.form-msg{font-size:11.5px;font-weight:600;padding:7px 13px;border-radius:7px;margin-right:auto;display:none;}
+.form-msg.ok{display:block;background:var(--green-bg);color:var(--green);border:1px solid rgba(4,120,87,0.2);}
+.form-msg.err{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(185,28,28,0.18);}
+
+/* -- TOAST -- */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:700;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 15px;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:9px;min-width:230px;animation:fadeUp 0.28s ease;box-shadow:0 8px 22px rgba(0,0,0,0.1);}
+.toast.ok{border-color:rgba(4,120,87,0.35);}.toast.ok .td{background:var(--green);}
+.toast.err{border-color:rgba(185,28,28,0.35);}.toast.err .td{background:var(--red);}
+.toast.info{border-color:rgba(0,104,181,0.35);}.toast.info .td{background:var(--accent);}
+.td{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+    </style>
+  <link rel="stylesheet" href="global-typography.css">
+  <link rel="stylesheet" href="employee-theme.css">
+  <script src="employee-theme.js"></script>
+  <link rel="stylesheet" href="topbar-alignment.css">
+  <link rel="stylesheet" href="brand-logo.css">
+  <script src="brand-logo.js" defer></script>
+
+<style>
+.modal-overlay{position:fixed;inset:0;background:rgba(5,18,38,0.6);backdrop-filter:blur(5px);z-index:2000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.add-modal-box{background:var(--surface);width:90%;max-width:650px;border-radius:14px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;animation:fadeUp 0.2s ease;}
+.modal-head{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface3);border-radius:14px 14px 0 0;}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.modal-sub{font-size:11px;color:var(--muted);}
+.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);}
+.modal-close:hover{color:var(--red);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+</style>
+
+</head>
+<body>
+
+<!-- -- UPDATE MODAL -- -->
+<div class="overlay" id="update-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">&#9998; Update Closed TO/SO Entry</div>
+        <div style="font-size:11.5px;color:var(--muted);margin-top:3px;">Review and update the record details below.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()" title="Close (Esc)">&#10005;</button>
+    </div>
+
+    <!-- Record info strip -->
+    <div class="rec-info" id="rec-strip">
+      <div class="rec-info-item"><div class="rec-info-label">TO/SO Ref No</div><div class="rec-info-val" id="ri-refno"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">SC Engineer</div><div class="rec-info-val normal" id="ri-sceng"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Division</div><div class="rec-info-val" id="ri-division"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Branch</div><div class="rec-info-val normal" id="ri-branch"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Type</div><div class="rec-info-val" id="ri-type"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Model</div><div class="rec-info-val normal" id="ri-model"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Engineer</div><div class="rec-info-val normal" id="ri-eng"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Warranty Status</div><div class="rec-info-val" id="ri-warranty"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">CRM Ref No</div><div class="rec-info-val normal" id="ri-crmref"> </div></div>
+      <div class="rec-info-item"><div class="rec-info-label">Entry Date</div><div class="rec-info-val normal" id="ri-entrydate"> </div></div>
+    </div>
+
+    <div class="modal-scroll">
+      <div class="modal-body">
+        <input type="hidden" id="upd-id"/>
+
+        <div class="detail-section-title">Status &amp; Execution</div>
+        <div class="update-grid">
+          <div class="ff">
+            <label>Status <span class="req">*</span></label>
+            <select id="upd-status">
+              <option value="">Select </option>
+              <option value="Completed">Completed</option>
+              <option value="Closed">Closed</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Open">Open</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+          <div class="ff">
+            <label>Executed Date</label>
+            <input type="date" id="upd-executeddate"/>
+          </div>
+          <div class="ff">
+            <label>Received Date</label>
+            <input type="date" id="upd-receiveddate"/>
+          </div>
+          <div class="ff">
+            <label>CRM Ref No</label>
+            <input type="text" id="upd-crmrefno" placeholder=""/>
+          </div>
+        </div>
+
+        <div class="detail-section-title">Remarks</div>
+        <div class="update-grid g3">
+          <div class="ff span3">
+            <label>Remarks / Notes</label>
+            <textarea id="upd-remarks" placeholder="Update remarks, actions taken, resolution notes"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="form-msg" id="upd-msg"></div>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-success" id="upd-save-btn" onclick="submitUpdate()">&#128190; Save Update</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- --- SIDEBAR (matches sc-dashboard.html exactly) --- -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-wrap">
+      <img class="brand-logo-img" src="logo.png" alt="SCHILLER">
+    </div>
+  </div>
+  <div style="padding:7px 13px 0;"><span class="sc-badge">Service Coordinator</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-sec">Main</div>
+    <a class="nav-item" href="Sc-dashboard.html"><span class="ico">&#128202;</span> Dashboard</a>
+
+    <div class="nav-sec">Work Orders</div>
+    <a class="nav-item" href="todr.html"><span class="ico">&#128196;</span> TO</a>
+    <a class="nav-item" href="ctodr.html"><span class="ico">&#128274;</span> Closed TO</a>
+    <a class="nav-item" href="dr.html"><span class="ico">&#128196;</span> DR</a>
+    <a class="nav-item active" href="cdr.html"><span class="ico">&#128274;</span> Closed DR</a>
+    <a class="nav-item" href="scsr.html"><span class="ico">&#128221;</span> SR</a>
+    <a class="nav-item" href="sccsr.html"><span class="ico">&#9989;</span> Closed SR</a>
+    <a class="nav-item" href="scprfob.html"><span class="ico">&#128203;</span> TO/SO Register</a>
+    <a class="nav-item" href="sccr.html"><span class="ico">&#128274;</span> Closed TO/SO Register</a>
+    <a class="nav-item" href="lt.html"><span class="ico">&#128230;</span> Loan Item</a>
+    <a class="nav-item" href="cli.html"><span class="ico">&#128274;</span> Closed Loan</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-av" id="admin-avatar">S</div>
+      <div>
+        <div class="user-nm" id="admin-name">Coordinator</div>
+        <div class="user-rl" id="admin-role">Service Coordinator</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">&#8617;&#65039;</button>
+    </div>
+  </div>
+</aside>
+
+<!-- --- MAIN --- -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb">
+        <a href="Sc-dashboard.html">Dashboard</a><span class="sep">&#8250;</span>
+        <span>Work Orders</span><span class="sep">&#8250;</span>
+        <span>Closed TO/SO Register</span>
+      </div>
+      <div class="page-title">Closed TO/SO Register</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+      <span style="font-size:11.5px;color:var(--muted);" id="topbar-date"></span>
+      <button class="btn btn-outline btn-sm" onclick="loadData()">&#10227; Refresh</button>
+      <button class="btn btn-primary btn-sm" onclick="exportCSV()">&#128228; Export</button>
+    </div>
+  </div>
+
+  
+  <div class="content">
+    <div class="table-card">
+      <div class="table-top">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--text);font-size:15px;display:flex;align-items:center;gap:8px;">
+          Closed DR Register <span class="count-chip" id="count-chip">0 entries</span>
+        </div>
+        <div class="toolbar-r">
+          <div class="show-row">
+            Show
+            <select class="f-select" id="per-page" onchange="currentPage=1;renderTable()">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30" selected>30</option>
+              <option value="50">50</option>
+              <option value="10000">All</option>
+            </select>
+            per page
+          </div>
+        </div>
+      </div>
+      <div class="filter-strip">
+        <label>Search</label>
+        <input type="text" class="f-inp" id="tbl-search" placeholder="Search Closed DR..." oninput="applyFilters()" style="min-width:200px;">
+        <label>From</label>
+        <input type="date" class="f-inp" id="fl-from" onchange="applyFilters()">
+        <label>To</label>
+        <input type="date" class="f-inp" id="fl-to" onchange="applyFilters()">
+        <label>Division</label>
+        <select class="f-inp" id="fl-division" onchange="applyFilters()" style="min-width:140px;">
+          <option value="">All Divisions</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters()" style="margin-left:auto;">&#10005; Clear</button>
+      </div>
+      <div class="table-wrap">
+        <table class="frn-table">
+          <thead>
+            <tr>
+              <th>DR req date</th>
+              <th>Division</th>
+              <th>FRN No</th>
+              <th>Part No</th>
+              <th>Model</th>
+              <th>Description</th>
+              <th>Def GIR No</th>
+              <th>Unit Status</th>
+              <th>Spares rcd date</th>
+            </tr>
+          </thead>
+          <tbody id="tb">
+            <tr><td colspan="9" style="text-align:center;padding:30px;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-foot">
+        <div id="tbl-info">Showing 0 entries</div>
+        <div class="pager-row" id="tbl-pagination"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ADD / UPDATE MODAL -->
+<div class="modal-overlay" id="cdr-modal">
+  <div class="add-modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="m-title">Add Closed DR</div>
+        <div class="modal-sub">Fill out the form below</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body" style="background:#fff;">
+      <input type="hidden" id="f-id">
+      
+      <div class="detail-item">
+        <div class="detail-section-title">Record Details</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="ff">
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">Entry Date</label><input type="date" id="f-date"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">FRN No</label><input type="text" id="f-frn" placeholder="Enter FRN"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;" class="ff">
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">Part No</label><input type="text" id="f-part" placeholder="Enter Part No"></div>
+          <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">Action</label><input type="text" id="f-action" placeholder="Enter Action"></div>
+        </div>
+        <div style="margin-top:14px;" class="ff">
+          <label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">Description</label>
+          <textarea id="f-desc" rows="3" placeholder="Enter Description"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot" style="background:var(--surface3);padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;">
+      <div id="m-msg" class="form-msg"></div>
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="save-btn" onclick="saveRecord()">&#128190; Save Record</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Topbar dates and user
+  const u = JSON.parse(sessionStorage.getItem('schiller_user') || '{}');
+  const dstr = new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const tbd = document.getElementById('topbar-date'); if(tbd) tbd.textContent = dstr;
+  const nms = document.querySelectorAll('#admin-name, #user-nm'); nms.forEach(e => { if(e) e.textContent = u.name || 'User'; });
+  const avs = document.querySelectorAll('#admin-avatar, #user-av'); avs.forEach(e => { if(e) e.textContent = (u.name||'U').charAt(0).toUpperCase(); });
+  const rls = document.querySelectorAll('#admin-role, #user-rl'); rls.forEach(e => { if(e) e.textContent = u.designation || 'Coordinator'; });
+
+  function hdrs(){ return {"Content-Type":"application/json", "Authorization":"Bearer "+(sessionStorage.getItem('schiller_token')||"")}; }
+  function logout(){ sessionStorage.clear(); localStorage.clear(); window.location.href="login.html"; }
+
+  let records = [];
+  let filtered = [];
+  let currentPage = 1;
+
+  function populateDivisions() {
+    const sel = document.getElementById('fl-division');
+    if (!sel) return;
+    const divs = [...new Set(records.map(r => r.division).filter(Boolean))].sort();
+    const current = sel.value;
+    sel.innerHTML = '<option value="">All Divisions</option>' + divs.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    if (current) sel.value = current;
+  }
+
+  function clearFilters() {
+    ['fl-from','fl-to','fl-division','tbl-search'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const q        = (document.getElementById('tbl-search')?.value || '').toLowerCase().trim();
+    const from     = document.getElementById('fl-from')?.value || '';
+    const to       = document.getElementById('fl-to')?.value || '';
+    const division = document.getElementById('fl-division')?.value || '';
+
+    filtered = records.filter(d => {
+      const entryDateStr = d.entryDate ? new Date(d.entryDate).toISOString().split('T')[0] : '';
+      const matchSearch = !q || Object.values(d).some(v => String(v || '').toLowerCase().includes(q));
+      return matchSearch &&
+             (!from || entryDateStr >= from) &&
+             (!to   || entryDateStr <= to)   &&
+             (!division || d.division === division);
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  async function loadData() {
+    try {
+      const res = await fetch('/api/cdr', { headers: hdrs() });
+      if(res.status===401||res.status===403) return logout();
+      const data = await res.json();
+      if(res.ok) { records = data; populateDivisions(); applyFilters(); }
+    } catch(e) { console.error(e); }
+  }
+
+  function renderTable() {
+    const perPage = parseInt(document.getElementById('per-page')?.value) || 30;
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / perPage));
+    if (currentPage > pages) currentPage = pages;
+    const slice = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+    const countChip = document.getElementById('count-chip');
+    if (countChip) countChip.textContent = total + ' entr' + (total === 1 ? 'y' : 'ies');
+
+    const first = total ? (currentPage - 1) * perPage + 1 : 0;
+    const tblInfo = document.getElementById('tbl-info');
+    if (tblInfo) tblInfo.textContent = total ? `Showing ${first} to ${Math.min(currentPage * perPage, total)} of ${total} entr${total === 1 ? 'y' : 'ies'}` : '0 entries';
+
+    renderPagination(pages);
+
+    const tb = document.getElementById('tb');
+    if(!total) { tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;">No Closed DR entries found.</td></tr>'; return; }
+    
+    tb.innerHTML = slice.map(r => `
+      <tr>
+        <td>${r.entryDate ? new Date(r.entryDate).toLocaleDateString('en-IN') : '-'}</td>
+        <td>${esc(r.division || '-')}</td>
+        <td><span style="font-weight:700;color:var(--accent);">${esc(r.frnNo)}</span></td>
+        <td>${esc(r.partNo)}</td>
+        <td>${esc(r.model || '-')}</td>
+        <td class="wrap-cell">${esc(r.description)}</td>
+        <td class="wrap-cell">${esc(r.defGirNo || '-')}</td>
+        <td>${esc(r.unitStatus || '-')}</td>
+        <td>${r.sparesReceivedDate ? new Date(r.sparesReceivedDate).toLocaleDateString('en-IN') : '-'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPagination(pages){
+    const el = document.getElementById('tbl-pagination');
+    if(!el) return;
+    if(pages <= 1){ el.innerHTML = ''; return; }
+    let html = `<button class="pager" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">&#8249; Prev</button>`;
+    getRange(currentPage, pages).forEach(p => {
+      html += p === ' ' ? '<button class="pager" disabled> </button>' : `<button class="pager ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    });
+    html += `<button class="pager" ${currentPage===pages?'disabled':''} onclick="goPage(${currentPage+1})">Next &#8250;</button>`;
+    el.innerHTML = html;
+  }
+  function getRange(c,t){ if(t<=7)return Array.from({length:t},(_,i)=>i+1); if(c<=4)return[1,2,3,4,5,' ',t]; if(c>=t-3)return[1,' ',t-4,t-3,t-2,t-1,t]; return[1,' ',c-1,c,c+1,' ',t]; }
+  function goPage(p){ currentPage = p; renderTable(); }
+
+  function openAddModal() {
+    document.getElementById('f-id').value = '';
+    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('f-frn').value = '';
+    document.getElementById('f-part').value = '';
+    document.getElementById('f-desc').value = '';
+    document.getElementById('f-action').value = '';
+    document.getElementById('m-title').innerHTML = '&#10133; Add TO';
+    msg('');
+    document.getElementById('cdr-modal').classList.add('open');
+  }
+
+  function openEdit(id) {
+    const r = filtered.find(x => x._id === id);
+    if(!r) return;
+    document.getElementById('f-id').value = r._id;
+    document.getElementById('f-date').value = r.entryDate ? new Date(r.entryDate).toISOString().split('T')[0] : '';
+    document.getElementById('f-frn').value = r.frnNo || '';
+    document.getElementById('f-part').value = r.partNo || '';
+    document.getElementById('f-desc').value = r.description || '';
+    document.getElementById('f-action').value = r.action || '';
+    document.getElementById('m-title').innerHTML = '&#9998; Edit Closed DR';
+    msg('');
+    document.getElementById('cdr-modal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('cdr-modal').classList.remove('open'); }
+  function msg(m, err=false) { 
+    const e=document.getElementById('m-msg'); 
+    e.textContent=m; 
+    e.style.display=m?'block':'none';
+    if(err) { e.style.background='rgba(185,28,28,0.1)'; e.style.color='var(--red)'; }
+    else { e.style.background='rgba(4,120,87,0.1)'; e.style.color='var(--green)'; }
+  }
+
+  async function saveRecord() {
+    const id = document.getElementById('f-id').value;
+    const payload = {
+      entryDate: document.getElementById('f-date').value,
+      frnNo: document.getElementById('f-frn').value,
+      partNo: document.getElementById('f-part').value,
+      description: document.getElementById('f-desc').value,
+      action: document.getElementById('f-action').value
+    };
+    if(!payload.entryDate || !payload.frnNo || !payload.partNo || !payload.description || !payload.action) {
+      return msg('All fields are required.', true);
+    }
+    
+    const btn = document.getElementById('save-btn');
+    btn.disabled=true; btn.textContent='Saving...';
+    try {
+      const url = id ? `/api/cdr/${id}` : '/api/cdr';
+      const method = id ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: hdrs(), body: JSON.stringify(payload) });
+      const json = await res.json().catch(()=>{});
+      if(!res.ok) throw new Error(json?.message || 'Server error');
+      closeModal();
+      loadData();
+    } catch(e) {
+      msg(e.message, true);
+    } finally {
+      btn.disabled=false; btn.innerHTML='&#128190; Save Record';
+    }
+  }
+
+  async function delRecord(id) {
+    if(!confirm('Delete this record permanently?')) return;
+    try {
+      await fetch(`/api/cdr/${id}`, { method: 'DELETE', headers: hdrs() });
+      loadData();
+    } catch(e) { alert('Failed to delete'); }
+  }
+
+  function exportCSV() {
+    const headers = ['DR Req Date','Division','FRN No','Part No','Model','Description','Def GIR No','Unit Status','Spares Rcd Date'];
+    const rows = filtered.map(r => [
+      r.entryDate ? new Date(r.entryDate).toLocaleDateString('en-IN') : '-',
+      r.division || '-',
+      r.frnNo || '-',
+      r.partNo || '-',
+      r.model || '-',
+      r.description || '-',
+      r.defGirNo || '-',
+      r.unitStatus || '-',
+      r.sparesReceivedDate ? new Date(r.sparesReceivedDate).toLocaleDateString('en-IN') : '-'
+    ]);
+    const csv = [headers, ...rows].map(row => row.map(v => `"${String(v || '').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'closed-dr-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+  }
+
+  function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  
+  // Close modal when clicking outside
+  document.getElementById('cdr-modal').addEventListener('click', e => { if(e.target.id==='cdr-modal') closeModal(); });
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+  loadData();
+</script>
+<script src="tab-fix.js"></script>
+</body>
+</html>
